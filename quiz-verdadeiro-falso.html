@@ -1,0 +1,625 @@
+<title>Verdadeiro ou Falso PRF</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Verdadeiro/Falso (estilo Cebraspe) para TODAS as matérias da PRF. Banco grande + sorteio aleatório por rodada. Paleta calma azul-petróleo + âmbar (foco TDAH). */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --surface-2:#eef2f6;
+  --fg:#1b2733; --muted:#5a6b7b; --line:#d9e1e8;
+  --accent:#0f7b86; --accent-ink:#0a5a62; --amber:#e8a317;
+  --green:#2f8f5b; --red:#c0493b;
+  --f-head:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --red:#e8766a; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --red:#e8766a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);margin:0;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px;
+  padding-block:22px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+h1{font-family:var(--f-head);font-size:clamp(1.4rem,5vw,2rem);margin:0;letter-spacing:-.02em}
+.xlink{display:inline-flex;align-items:center;gap:6px;margin-top:6px;align-self:flex-start;text-decoration:none;font-weight:700;font-size:.86rem;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
+.seg{display:flex;background:var(--surface-2);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font-weight:700;padding:10px;border-radius:9px;cursor:pointer;font-family:var(--f-body);font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select{padding:9px 10px;border-radius:9px;background:var(--surface);color:var(--fg);border:1px solid var(--line);font-family:var(--f-body);font-size:.92rem}
+#mat{flex:1;min-width:180px}
+.sbtn{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:9px 12px;border-radius:9px;cursor:pointer;font-size:.9rem}
+.bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar > i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.meta{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.card{position:relative;border:1px solid var(--line);border-radius:20px;background:var(--surface);
+  min-height:290px;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:26px 22px;
+  box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.tagrow{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--accent-ink)}
+.chip.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.side-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.q{font-family:var(--f-head);font-size:clamp(1.1rem,3.2vw,1.42rem);line-height:1.34;text-wrap:balance}
+.btns{display:flex;gap:10px}
+.btns button{flex:1;padding:16px;border:0;border-radius:12px;font-weight:800;cursor:pointer;font-size:1.02rem;font-family:var(--f-body);transition:transform .05s}
+.btns button:active{transform:scale(.97)}
+.ce-certo{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.ce-errado{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+.answer{border-top:1px dashed var(--line);padding-top:14px}
+.verdict{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-weight:800;font-size:1.18rem}
+.verdict.good{color:var(--green)} .verdict.bad{color:var(--red)}
+.vsub{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:2px}
+.just{background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:.95rem;margin-top:10px}
+.next{width:100%;padding:14px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer;font-size:1rem;margin-top:12px}
+.done{text-align:center;padding:30px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.done .big{font-family:var(--f-head);font-size:2rem;color:var(--accent)}
+.nav{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.nav button{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.foot{text-align:center;color:var(--muted);font-size:.82rem}
+.foot b{color:var(--fg)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Concurso PRF · estilo Cebraspe · Certo/Errado</div>
+    <h1>Verdadeiro ou Falso — PRF</h1>
+    <a class="xlink" href="https://claude.ai/artifact/3Wzvfn7GvWo8gnbuYEx1B9" target="_blank" rel="noopener">✍️ Ir para o Treino de Redação →</a>
+  </header>
+
+  <div class="seg">
+    <button id="mTreino" aria-pressed="true">📚 Treino (correção na hora)</button>
+    <button id="mSim" aria-pressed="false">⏱️ Simulado (nota C−E)</button>
+  </div>
+
+  <div class="controls">
+    <select id="mat" aria-label="Escolher matéria"></select>
+    <select id="size" aria-label="Questões por rodada">
+      <option value="10">10 por rodada</option>
+      <option value="20" selected>20 por rodada</option>
+      <option value="30">30 por rodada</option>
+      <option value="all">Todas</option>
+    </select>
+    <button class="sbtn" id="shuffle">🔀 Nova rodada</button>
+  </div>
+
+  <div class="bar"><i id="prog"></i></div>
+  <div class="meta"><span id="pos">—</span><span id="timer"></span><span id="score">✓ 0 · ✗ 0</span></div>
+
+  <div id="stage"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+// ce:true = VERDADEIRO. s = afirmação, j = correção/justificativa, t = tópico.
+const SUBJECTS={
+"🎯 Simulado estilo prova PRF":[
+ {t:"Trânsito",ce:true,s:"Conforme o CTB, o trânsito de qualquer natureza nas vias terrestres do território nacional, abertas à circulação, rege-se por esse código.",j:"CERTO. Art. 1º."},
+ {t:"Trânsito",ce:false,s:"Os órgãos de trânsito respondem subjetivamente, dependendo de comprovação de culpa, pelos danos causados aos cidadãos.",j:"ERRADO. A responsabilidade é OBJETIVA (art. 1º, §3º)."},
+ {t:"Segurança Pública",ce:false,s:"A segurança pública é exercida, para preservação da ordem pública, exclusivamente pela União, por meio da PF e da PRF.",j:"ERRADO. É exercida por vários órgãos, inclusive estaduais (art. 144)."},
+ {t:"Segurança Pública",ce:true,s:"A PRF, órgão permanente, estruturado em carreira, destina-se ao patrulhamento ostensivo das rodovias federais.",j:"CERTO. Art. 144, §2º."},
+ {t:"Dir. Humanos",ce:true,s:"De acordo com a DUDH, todos os seres humanos nascem livres e iguais em dignidade e direitos.",j:"CERTO. Art. 1º da DUDH."},
+ {t:"Dir. Humanos",ce:false,s:"Os direitos humanos, por serem históricos, podem ser renunciados por seu titular mediante manifestação expressa.",j:"ERRADO. São irrenunciáveis e inalienáveis."},
+ {t:"Penal",ce:true,s:"Admite-se a retroatividade da lei penal mais benéfica, ainda que o fato já tenha sido decidido por sentença transitada em julgado.",j:"CERTO. Art. 2º, p.ú. do CP."},
+ {t:"Penal",ce:true,s:"A legítima defesa pressupõe reação a agressão injusta, atual ou iminente, a direito próprio ou de terceiro.",j:"CERTO. Art. 25."},
+ {t:"Proc. Penal",ce:true,s:"O inquérito policial, por seu caráter inquisitivo, dispensa o contraditório e a ampla defesa em sua fase de investigação.",j:"CERTO."},
+ {t:"Proc. Penal",ce:true,s:"A prisão em flagrante poderá ser efetuada por qualquer do povo, mas somente as autoridades policiais estão obrigadas a fazê-lo.",j:"CERTO. Art. 301."},
+ {t:"Português",ce:false,s:"No período 'Fazia anos que não chovia na região', o verbo 'fazer' concorda com o sujeito 'anos'.",j:"ERRADO. 'Fazer' indicando tempo é impessoal — não tem sujeito."},
+ {t:"Português",ce:false,s:"É obrigatório o sinal de crase em: 'Os veículos circulam à 80 km/h'.",j:"ERRADO. Não há crase antes de numeral nesse caso: 'a 80 km/h'."},
+ {t:"RLM",ce:false,s:"A negação de 'Todo motorista respeita a lei' é 'Nenhum motorista respeita a lei'.",j:"ERRADO. É 'Algum motorista NÃO respeita a lei'."},
+ {t:"RLM",ce:true,s:"Se a proposição 'p → q' é verdadeira e q é falsa, então p é necessariamente falsa.",j:"CERTO. Modus tollens."},
+ {t:"Informática",ce:true,s:"O uso do protocolo HTTPS garante que os dados entre o navegador e o servidor trafeguem criptografados.",j:"CERTO."},
+ {t:"Informática",ce:false,s:"O princípio da disponibilidade assegura que a informação não seja alterada de maneira não autorizada.",j:"ERRADO. Isso é INTEGRIDADE. Disponibilidade = estar acessível quando preciso."},
+ {t:"Física",ce:false,s:"Mantidas as demais condições, se a velocidade de um veículo dobra, a energia cinética também dobra.",j:"ERRADO. QUADRUPLICA — depende do quadrado da velocidade (v²)."},
+ {t:"Física",ce:true,s:"Um veículo que desenvolve 90 km/h tem velocidade de 25 m/s.",j:"CERTO. 90 ÷ 3,6 = 25."},
+ {t:"Ética",ce:false,s:"Conforme o Decreto 1.171/94, a cortesia e a boa vontade no atendimento ao público são indiferentes à ética do servidor.",j:"ERRADO. São deveres éticos do servidor."},
+ {t:"Trânsito",ce:true,s:"Dirigir sob influência de álcool é infração gravíssima, sujeitando o condutor, ainda, à suspensão do direito de dirigir.",j:"CERTO. Art. 165."},
+ {t:"Trânsito",ce:false,s:"A velocidade máxima para automóveis em rodovia de pista simples, sem sinalização, é de 110 km/h.",j:"ERRADO. Pista simples = 100 km/h; 110 é pista dupla."},
+ {t:"Leg. Especial",ce:false,s:"Segundo a Lei 11.343/06, o usuário que porta droga para consumo pessoal sujeita-se a pena privativa de liberdade de até 2 anos.",j:"ERRADO. O art. 28 não prevê prisão."},
+ {t:"Leg. Especial",ce:false,s:"Possuir arma de fogo no interior da própria residência configura o crime de porte ilegal.",j:"ERRADO. Dentro de casa/trabalho é POSSE, não porte."},
+ {t:"Constitucional",ce:true,s:"A tortura, o tráfico de entorpecentes e o terrorismo são inafiançáveis e insuscetíveis de graça ou anistia.",j:"CERTO. Art. 5º, XLIII."},
+ {t:"Penal",ce:true,s:"O funcionário público que, em razão do cargo, solicita vantagem indevida pratica o crime de corrupção passiva.",j:"CERTO. Art. 317."},
+ {t:"Português",ce:true,s:"Em 'É proibida a entrada de pessoas não autorizadas', a concordância está correta.",j:"CERTO. Com o artigo 'a', o adjetivo concorda: 'proibida a entrada'."},
+ {t:"Trânsito",ce:true,s:"O condutor envolvido em acidente com vítima que foge do local, deixando de prestar socorro, poderá ter a pena agravada.",j:"CERTO. Art. 302/305 do CTB."},
+ {t:"Dir. Humanos",ce:true,s:"A Convenção Americana de Direitos Humanos (Pacto de San José da Costa Rica) foi incorporada ao ordenamento jurídico brasileiro.",j:"CERTO."}
+],
+"Legislação de Trânsito":[
+ {t:"CTB",ce:true,s:"O trânsito nas vias terrestres de qualquer natureza é regido pelo CTB — Lei 9.503/97.",j:"CERTO. Abrange vias de qualquer natureza, urbanas e rurais."},
+ {t:"CTB",ce:false,s:"O conceito legal de trânsito restringe-se à circulação, não abrangendo parada e estacionamento.",j:"ERRADO. Abrange também parada, estacionamento e carga/descarga (art. 1º, §1º)."},
+ {t:"CTB",ce:true,s:"A responsabilidade dos órgãos do SNT por danos é objetiva.",j:"CERTO. Art. 1º, §3º — sem prova de culpa, mas exige nexo causal."},
+ {t:"CTB",ce:false,s:"A prioridade absoluta das ações dos órgãos de trânsito é a fluidez do tráfego.",j:"ERRADO. É a defesa da VIDA, saúde e meio ambiente (art. 1º, §5º)."},
+ {t:"CTB",ce:true,s:"O trânsito em condições seguras é um direito de todos e dever dos órgãos do SNT.",j:"CERTO. Art. 1º, §2º."},
+ {t:"Vias",ce:true,s:"As vias urbanas classificam-se em trânsito rápido, arterial, coletora e local.",j:"CERTO. Art. 60."},
+ {t:"Vias",ce:false,s:"Sem sinalização, a velocidade máxima em via LOCAL urbana é de 40 km/h.",j:"ERRADO. Local = 30 km/h; 40 é a coletora (art. 61)."},
+ {t:"Vias",ce:true,s:"Sem sinalização, a via arterial urbana tem velocidade máxima de 60 km/h.",j:"CERTO. Rápido 80 · arterial 60 · coletora 40 · local 30."},
+ {t:"Vias",ce:false,s:"Em rodovia de pista dupla sem sinalização, o ônibus pode ir a 110 km/h.",j:"ERRADO. Ônibus = 90 km/h; 110 é para automóveis, camionetas e motos."},
+ {t:"Vias",ce:true,s:"Nas estradas (vias rurais não pavimentadas), a velocidade máxima sem sinalização é 60 km/h.",j:"CERTO. Art. 61, §1º."},
+ {t:"Vias",ce:true,s:"O acostamento não integra a pista de rolamento e serve a parada/estacionamento de emergência.",j:"CERTO. É parte diferenciada da pista."},
+ {t:"SNT",ce:false,s:"O órgão máximo executivo de trânsito da União é o CONTRAN.",j:"ERRADO. É a SENATRAN; o CONTRAN é normativo/consultivo."},
+ {t:"SNT",ce:true,s:"O CONTRAN é o órgão máximo normativo, consultivo e coordenador do SNT.",j:"CERTO."},
+ {t:"SNT",ce:true,s:"A JARI é órgão de 1ª instância para julgar recursos contra penalidades de trânsito.",j:"CERTO. Arts. 16-18."},
+ {t:"SNT",ce:false,s:"As câmaras temáticas têm poder normativo e editam resoluções.",j:"ERRADO. São técnicas, sem poder normativo. Quem edita resolução é o CONTRAN."},
+ {t:"SNT",ce:true,s:"A PRF e as polícias militares integram o Sistema Nacional de Trânsito.",j:"CERTO. Art. 7º."},
+ {t:"SNT",ce:true,s:"Compete ao DETRAN registrar e licenciar veículos e habilitar condutores.",j:"CERTO. Art. 22."},
+ {t:"Conduta",ce:false,s:"A circulação faz-se pela esquerda e a ultrapassagem pela direita.",j:"ERRADO. Circulação pela DIREITA; ultrapassagem pela ESQUERDA (art. 29, I)."},
+ {t:"Conduta",ce:true,s:"Entre veículos de portes diferentes, o de maior porte é responsável pela segurança dos menores.",j:"CERTO. Art. 29, §2º."},
+ {t:"Conduta",ce:false,s:"É permitido o uso prolongado da buzina como advertência.",j:"ERRADO. Só um toque breve, para evitar acidentes (art. 41)."},
+ {t:"Conduta",ce:true,s:"O uso da luz baixa é obrigatório à noite e nos túneis.",j:"CERTO. Art. 40."},
+ {t:"Conduta",ce:true,s:"As motocicletas devem circular sempre com o farol aceso.",j:"CERTO. Art. 40."},
+ {t:"Conduta",ce:false,s:"Quem vai ingressar numa via tem preferência sobre quem já circula nela.",j:"ERRADO. A preferência é de quem já está circulando na via."},
+ {t:"Conduta",ce:true,s:"Na rotatória não sinalizada, tem preferência quem já está circulando nela.",j:"CERTO. Art. 29, III."},
+ {t:"Conduta",ce:true,s:"Ambulância em serviço de urgência, com sinais ligados, tem livre circulação, parada e estacionamento.",j:"CERTO. Art. 29, VII."},
+ {t:"Infrações",ce:false,s:"As infrações de trânsito classificam-se em leve, média, grave e gravíssima, e todas valem 7 pontos.",j:"ERRADO. A pontuação varia: leve 3, média 4, grave 5, gravíssima 7 pontos."},
+ {t:"Infrações",ce:true,s:"Dirigir sob influência de álcool é infração gravíssima, além de poder configurar crime.",j:"CERTO. Art. 165 do CTB (e art. 306 como crime)."},
+ {t:"CNH",ce:false,s:"A CNH será suspensa quando o condutor atingir 10 pontos em 12 meses, em qualquer caso.",j:"ERRADO. O limite varia (20, 30 ou 40 pontos) conforme haja ou não infração gravíssima nos 12 meses."},
+ {t:"CNH",ce:true,s:"A idade mínima para habilitação nas categorias A e B é de 18 anos.",j:"CERTO. Art. 140."},
+ {t:"Crimes",ce:true,s:"Participar de 'racha' (competição não autorizada) em via pública é crime de trânsito.",j:"CERTO. Art. 308 do CTB."},
+ {t:"Crimes",ce:false,s:"A embriaguez ao volante só é crime se houver acidente com vítima.",j:"ERRADO. Dirigir com capacidade alterada por álcool já é crime (art. 306), independentemente de acidente."},
+ {t:"Pedestre",ce:true,s:"O pedestre que estiver atravessando a via sobre a faixa tem preferência de passagem.",j:"CERTO. Art. 70."}
+],
+"Direito Constitucional":[
+ {t:"Princípios",ce:true,s:"São fundamentos da República: soberania, cidadania, dignidade da pessoa humana, valores sociais do trabalho e da livre iniciativa, e pluralismo político.",j:"CERTO. Art. 1º — SO-CI-DI-VA-PLU."},
+ {t:"Objetivos",ce:false,s:"A prevalência dos direitos humanos é objetivo fundamental da República.",j:"ERRADO. É princípio das RELAÇÕES INTERNACIONAIS (art. 4º)."},
+ {t:"Objetivos",ce:true,s:"Erradicar a pobreza e reduzir as desigualdades sociais e regionais são objetivos fundamentais da República.",j:"CERTO. Art. 3º."},
+ {t:"Dir. Fundamentais",ce:false,s:"A prática do racismo é crime inafiançável, mas prescritível.",j:"ERRADO. É inafiançável e IMPRESCRITÍVEL (art. 5º, XLII)."},
+ {t:"Dir. Fundamentais",ce:true,s:"A casa é asilo inviolável; de dia só se entra sem consentimento em caso de flagrante, desastre, socorro ou por ordem judicial.",j:"CERTO. Art. 5º, XI."},
+ {t:"Dir. Fundamentais",ce:false,s:"Os direitos sociais estão no art. 5º da Constituição.",j:"ERRADO. Começam no art. 6º. O art. 5º é dos direitos individuais e coletivos."},
+ {t:"Dir. Fundamentais",ce:true,s:"É livre a manifestação do pensamento, sendo vedado o anonimato.",j:"CERTO. Art. 5º, IV."},
+ {t:"Dir. Fundamentais",ce:false,s:"A lei poderá restringir a publicidade dos atos processuais sempre, sem exceção.",j:"ERRADO. A publicidade é a regra; o sigilo é exceção (defesa da intimidade/interesse social) — art. 5º, LX."},
+ {t:"Dir. Fundamentais",ce:true,s:"Ninguém será considerado culpado até o trânsito em julgado de sentença penal condenatória.",j:"CERTO. Art. 5º, LVII."},
+ {t:"Remédios",ce:false,s:"O habeas data serve para proteger a liberdade de locomoção.",j:"ERRADO. Isso é o habeas corpus. Habeas data garante acesso/retificação de dados pessoais."},
+ {t:"Remédios",ce:true,s:"O mandado de segurança protege direito líquido e certo não amparado por habeas corpus ou habeas data.",j:"CERTO. Art. 5º, LXIX."},
+ {t:"Nacionalidade",ce:true,s:"São brasileiros natos os nascidos no estrangeiro de pai ou mãe brasileiros que venham residir no Brasil e optem pela nacionalidade.",j:"CERTO. Art. 12, I, c."},
+ {t:"Nacionalidade",ce:false,s:"O brasileiro nato pode perder a nacionalidade por naturalizar-se em outro país, em qualquer hipótese.",j:"ERRADO. Há exceções (ex.: imposição de naturalização por outro Estado) — art. 12, §4º."},
+ {t:"Dir. Políticos",ce:false,s:"O voto é obrigatório para os maiores de 16 e menores de 18 anos.",j:"ERRADO. Para 16-18 anos o voto é FACULTATIVO (art. 14, §1º)."},
+ {t:"Dir. Políticos",ce:true,s:"São condições de elegibilidade o alistamento eleitoral e o domicílio eleitoral na circunscrição.",j:"CERTO. Art. 14, §3º."},
+ {t:"Org. do Estado",ce:true,s:"A forma federativa de Estado é cláusula pétrea.",j:"CERTO. Art. 60, §4º."},
+ {t:"Org. do Estado",ce:false,s:"Os Municípios não integram a Federação brasileira.",j:"ERRADO. A CF/88 incluiu os Municípios como entes federativos (art. 1º e 18)."},
+ {t:"Poderes",ce:false,s:"Medida provisória é editada pelo Congresso Nacional em caso de urgência.",j:"ERRADO. Quem edita MP é o PRESIDENTE DA REPÚBLICA (art. 62)."},
+ {t:"Poderes",ce:true,s:"A iniciativa das leis complementares e ordinárias cabe, entre outros, a qualquer membro do Congresso Nacional.",j:"CERTO. Art. 61."},
+ {t:"Poderes",ce:true,s:"Compete privativamente ao Presidente da República sancionar, promulgar e fazer publicar as leis.",j:"CERTO. Art. 84, IV."},
+ {t:"Segurança Pública",ce:true,s:"A segurança pública é dever do Estado, direito e responsabilidade de todos.",j:"CERTO. Art. 144."},
+ {t:"Segurança Pública",ce:false,s:"A Polícia Rodoviária Federal destina-se ao patrulhamento ostensivo das rodovias estaduais.",j:"ERRADO. Destina-se às rodovias FEDERAIS (art. 144, §2º)."},
+ {t:"Segurança Pública",ce:true,s:"São órgãos da segurança pública, entre outros: PF, PRF, PFF, polícias civis, militares, bombeiros militares e polícias penais.",j:"CERTO. Art. 144."},
+ {t:"Segurança Pública",ce:false,s:"A apuração de infrações penais contra a ordem política e social é atribuição da Polícia Rodoviária Federal.",j:"ERRADO. É atribuição da POLÍCIA FEDERAL (art. 144, §1º)."},
+ {t:"Controle",ce:false,s:"No controle difuso de constitucionalidade, a decisão tem efeito erga omnes automático.",j:"ERRADO. O controle difuso tem efeito inter partes (entre as partes)."},
+ {t:"Controle",ce:true,s:"A Ação Direta de Inconstitucionalidade (ADI) é instrumento do controle concentrado, julgado pelo STF.",j:"CERTO."},
+ {t:"Adm. Pública",ce:true,s:"A Administração Pública obedece aos princípios de legalidade, impessoalidade, moralidade, publicidade e eficiência.",j:"CERTO. Art. 37 — LIMPE."},
+ {t:"Adm. Pública",ce:false,s:"A proibição de acumular cargos públicos é absoluta, sem qualquer exceção.",j:"ERRADO. Há exceções (ex.: dois cargos de professor, ou professor + técnico) — art. 37, XVI."}
+],
+"Direito Administrativo":[
+ {t:"Princípios",ce:true,s:"A Administração obedece aos princípios de legalidade, impessoalidade, moralidade, publicidade e eficiência.",j:"CERTO. Art. 37 — LIMPE."},
+ {t:"Princípios",ce:false,s:"Pelo princípio da legalidade, o administrador pode fazer tudo o que a lei não proíbe.",j:"ERRADO. Isso vale para o particular. A Administração só pode fazer o que a lei AUTORIZA."},
+ {t:"Princípios",ce:true,s:"Pelo princípio da autotutela, a Administração pode anular seus atos ilegais e revogar os inconvenientes.",j:"CERTO. Súmulas 346 e 473 do STF."},
+ {t:"Princípios",ce:false,s:"O princípio da publicidade exige publicar atos para gerar efeitos de promoção pessoal da autoridade.",j:"ERRADO. É vedada a promoção pessoal (impessoalidade) — art. 37, §1º."},
+ {t:"Poderes",ce:false,s:"O poder de polícia é sempre discricionário.",j:"ERRADO. Em regra é discricionário, mas pode ser vinculado (ex.: licença para construir)."},
+ {t:"Poderes",ce:true,s:"Os atributos do poder de polícia são discricionariedade, autoexecutoriedade e coercibilidade.",j:"CERTO."},
+ {t:"Poderes",ce:true,s:"O poder hierárquico permite à Administração ordenar, fiscalizar, delegar e avocar atribuições.",j:"CERTO."},
+ {t:"Poderes",ce:false,s:"O poder disciplinar permite punir qualquer cidadão que descumpra normas administrativas.",j:"ERRADO. Alcança servidores e quem tem vínculo específico com a Administração, não o cidadão em geral."},
+ {t:"Atos",ce:true,s:"São atributos do ato administrativo: presunção de legitimidade, imperatividade, autoexecutoriedade e tipicidade.",j:"CERTO."},
+ {t:"Atos",ce:false,s:"A revogação de ato decorre de ilegalidade e opera efeitos ex tunc.",j:"ERRADO. Revogação é por conveniência/oportunidade, efeito ex nunc. Ilegalidade gera ANULAÇÃO (ex tunc)."},
+ {t:"Atos",ce:true,s:"São requisitos do ato administrativo: competência, finalidade, forma, motivo e objeto.",j:"CERTO. COM-FI-FO-MO-OB."},
+ {t:"Atos",ce:false,s:"O ato administrativo discricionário pode ter seu mérito revisto pelo Poder Judiciário livremente.",j:"ERRADO. O Judiciário controla a legalidade, não o mérito (conveniência/oportunidade) do ato."},
+ {t:"Organização",ce:false,s:"Autarquias são pessoas jurídicas de direito privado criadas por autorização legal.",j:"ERRADO. Autarquia é de direito PÚBLICO, criada diretamente por LEI específica."},
+ {t:"Organização",ce:true,s:"Empresas públicas e sociedades de economia mista integram a administração indireta.",j:"CERTO. Junto com autarquias e fundações."},
+ {t:"Organização",ce:false,s:"A desconcentração cria uma nova pessoa jurídica para exercer a atividade.",j:"ERRADO. Desconcentração é distribuição interna (mesma PJ). Criar nova PJ é DESCENTRALIZAÇÃO."},
+ {t:"Agentes",ce:true,s:"A investidura em cargo ou emprego público depende de aprovação prévia em concurso, salvo cargos em comissão.",j:"CERTO. Art. 37, II."},
+ {t:"Agentes",ce:false,s:"O prazo de validade do concurso público é de até 4 anos, prorrogável uma vez.",j:"ERRADO. É de até 2 anos, prorrogável uma vez por igual período (art. 37, III)."},
+ {t:"Responsabilidade",ce:true,s:"As pessoas jurídicas de direito público respondem objetivamente pelos danos que seus agentes causarem a terceiros.",j:"CERTO. Art. 37, §6º — risco administrativo."},
+ {t:"Responsabilidade",ce:true,s:"Assegura-se à Administração o direito de regresso contra o agente que agir com dolo ou culpa.",j:"CERTO. Art. 37, §6º."},
+ {t:"Improbidade",ce:false,s:"Os atos de improbidade podem ser punidos independentemente de dolo ou culpa.",j:"ERRADO. Após a Lei 14.230/21, exige-se DOLO (extinta a modalidade culposa)."},
+ {t:"Improbidade",ce:true,s:"Importar em enriquecimento ilícito é uma das espécies de ato de improbidade administrativa.",j:"CERTO. Art. 9º da Lei 8.429/92."},
+ {t:"Licitações",ce:true,s:"Na Lei 14.133/21 são modalidades: pregão, concorrência, concurso, leilão e diálogo competitivo.",j:"CERTO. Extintas a tomada de preços e o convite."},
+ {t:"Licitações",ce:false,s:"O pregão é a modalidade adequada para contratar serviços de engenharia de qualquer natureza.",j:"ERRADO. O pregão é para bens e serviços comuns; não para serviços técnicos especializados de natureza predominantemente intelectual."},
+ {t:"Licitações",ce:true,s:"São princípios da licitação a isonomia, a legalidade, a impessoalidade e o julgamento objetivo.",j:"CERTO."},
+ {t:"Contratos",ce:true,s:"A Administração pode alterar unilateralmente os contratos administrativos (cláusulas exorbitantes).",j:"CERTO. Dentro dos limites legais."},
+ {t:"Serviços",ce:false,s:"Concessão de serviço público pode ser feita a pessoa física mediante pregão.",j:"ERRADO. Exige CONCORRÊNCIA (ou diálogo competitivo) e vai a pessoa jurídica/consórcio."},
+ {t:"Bens",ce:false,s:"Os bens públicos de uso comum do povo podem ser usucapidos após 15 anos.",j:"ERRADO. Bens públicos são IMPRESCRITÍVEIS — não podem ser adquiridos por usucapião."},
+ {t:"Processo Adm.",ce:true,s:"No processo administrativo são assegurados o contraditório e a ampla defesa.",j:"CERTO. Art. 5º, LV da CF e Lei 9.784/99."}
+],
+"Língua Portuguesa":[
+ {t:"Crase",ce:false,s:"Ocorre crase em: 'Refiro-me à pessoas honestas.'",j:"ERRADO. Antes de plural sem artigo plural não há crase: 'a pessoas'."},
+ {t:"Crase",ce:true,s:"Em 'Vou à Bahia', o uso da crase está correto.",j:"CERTO. Teste: 'volto DA Bahia' → crase."},
+ {t:"Crase",ce:false,s:"Usa-se crase antes de verbo: 'Começou à chover.'",j:"ERRADO. Nunca há crase antes de verbo: 'começou a chover'."},
+ {t:"Crase",ce:true,s:"Não ocorre crase antes de palavra masculina: 'andar a cavalo'.",j:"CERTO."},
+ {t:"Concordância",ce:false,s:"Está correto: 'Fazem dez anos que ele partiu.'",j:"ERRADO. 'Fazer' indicando tempo é impessoal: 'FAZ dez anos'."},
+ {t:"Concordância",ce:true,s:"Em 'Houve muitos problemas', a forma verbal está correta.",j:"CERTO. 'Haver' no sentido de existir é impessoal (singular)."},
+ {t:"Concordância",ce:false,s:"'Podem haver falhas no sistema' está correto.",j:"ERRADO. 'Haver' (existir) é impessoal; o auxiliar também fica no singular: 'pode haver falhas'."},
+ {t:"Concordância",ce:true,s:"Em 'Mais de um candidato se inscreveu', o verbo no singular está correto.",j:"CERTO. 'Mais de um' concorda no singular."},
+ {t:"Regência",ce:false,s:"Está correto: 'Assisti o jogo ontem' (ver).",j:"ERRADO. 'Assistir' = ver pede objeto indireto: 'assisti AO jogo'."},
+ {t:"Regência",ce:true,s:"Em 'Prefiro cinema a teatro', a regência está correta.",j:"CERTO. Preferir uma coisa A outra (sem 'do que')."},
+ {t:"Regência",ce:false,s:"'Cheguei na escola cedo' está na norma culta.",j:"ERRADO. Quem chega, chega A algum lugar: 'cheguei À escola'."},
+ {t:"Acentuação",ce:true,s:"'Herói', 'chapéu' e 'céu' são acentuadas por serem ditongos abertos tônicos.",j:"CERTO. éi, éu, ói em oxítonas/monossílabos."},
+ {t:"Acentuação",ce:false,s:"Após o Acordo Ortográfico, 'ideia' continua recebendo acento.",j:"ERRADO. Ditongos 'ei' e 'oi' em paroxítonas perderam o acento: ideia, heroico."},
+ {t:"Acentuação",ce:true,s:"Todas as proparoxítonas são acentuadas.",j:"CERTO. Ex.: médico, lâmpada, sábado."},
+ {t:"Ortografia",ce:false,s:"Em 'Ele agiu de mau para ela', a palavra 'mau' está correta.",j:"ERRADO. Aqui é advérbio 'mal' (oposto de bem)."},
+ {t:"Ortografia",ce:true,s:"'A fim de' (finalidade) difere de 'afim' (semelhante/parente).",j:"CERTO. 'A fim de estudar' x 'ideias afins'."},
+ {t:"Pontuação",ce:true,s:"Não se separa o sujeito do predicado por vírgula.",j:"CERTO. Regra básica."},
+ {t:"Pontuação",ce:false,s:"A vírgula antes de 'e' é sempre proibida.",j:"ERRADO. Há casos de uso (ex.: sujeitos diferentes, 'e' com valor adversativo)."},
+ {t:"Classes",ce:false,s:"Em 'Ele chegou bastante cansado', 'bastante' é adjetivo.",j:"ERRADO. Modifica adjetivo → é ADVÉRBIO (invariável)."},
+ {t:"Classes",ce:true,s:"Em 'Comprei bastantes livros', 'bastantes' é pronome indefinido e varia.",j:"CERTO. Modifica substantivo → varia."},
+ {t:"Verbos",ce:true,s:"Em 'Se eu vir você amanhã, aviso', o verbo 'ver' está correto.",j:"CERTO. Futuro do subjuntivo de ver = 'vir'."},
+ {t:"Verbos",ce:false,s:"'Quando eu ver o resultado, te conto' está correto.",j:"ERRADO. É 'quando eu VIR o resultado' (futuro do subjuntivo de ver)."},
+ {t:"Sintaxe",ce:false,s:"Em 'Precisa-se de vendedores', 'de vendedores' é sujeito.",j:"ERRADO. É objeto indireto; sujeito indeterminado (verbo + se)."},
+ {t:"Sintaxe",ce:true,s:"Em 'Vendem-se casas', 'casas' é o sujeito (voz passiva sintética).",j:"CERTO. Por isso o verbo vai para o plural."},
+ {t:"Semântica",ce:true,s:"'Ratificar' significa confirmar; 'retificar' significa corrigir.",j:"CERTO. Parônimos."},
+ {t:"Semântica",ce:false,s:"'Tráfego' e 'tráfico' são sinônimos.",j:"ERRADO. 'Tráfego' = trânsito; 'tráfico' = comércio ilícito."},
+ {t:"Interpretação",ce:true,s:"Denotação é o sentido literal; conotação é o sentido figurado.",j:"CERTO."},
+ {t:"Coesão",ce:true,s:"Pronomes e conjunções são recursos de coesão textual.",j:"CERTO."},
+ {t:"Crase",ce:true,s:"Em 'das 8 às 10 horas', a crase em 'às' está correta.",j:"CERTO. Horas definidas → crase."}
+],
+"Direito Penal":[
+ {t:"Lei penal",ce:true,s:"A lei penal não retroage, salvo para beneficiar o réu.",j:"CERTO. Art. 5º, XL da CF; art. 2º do CP."},
+ {t:"Lei penal",ce:false,s:"No Brasil, a regra quanto ao tempo do crime é a teoria do resultado.",j:"ERRADO. Adota-se a teoria da ATIVIDADE (art. 4º)."},
+ {t:"Lei penal",ce:true,s:"Quanto ao lugar do crime, o Brasil adota a teoria da ubiquidade.",j:"CERTO. Art. 6º — lugar da ação ou do resultado."},
+ {t:"Lei penal",ce:false,s:"Não há crime sem lei anterior que o defina, mas admite-se a analogia para prejudicar o réu.",j:"ERRADO. É vedada a analogia in malam partem (contra o réu)."},
+ {t:"Crime",ce:true,s:"Diz-se consumado o crime quando nele se reúnem todos os elementos de sua definição legal.",j:"CERTO. Art. 14, I."},
+ {t:"Tentativa",ce:false,s:"Na tentativa, a pena é a mesma do crime consumado.",j:"ERRADO. Reduz-se de 1 a 2/3 (art. 14, p.ú.)."},
+ {t:"Desistência",ce:true,s:"Na desistência voluntária, o agente responde só pelos atos já praticados.",j:"CERTO. Art. 15."},
+ {t:"Crime impossível",ce:true,s:"Não há punição quando, por ineficácia absoluta do meio, é impossível consumar o crime.",j:"CERTO. Art. 17 (crime impossível)."},
+ {t:"Dolo/Culpa",ce:false,s:"A regra no Código Penal é a punição a título de culpa.",j:"ERRADO. A regra é o DOLO; a culpa só é punida quando a lei prevê expressamente (art. 18, p.ú.)."},
+ {t:"Excludentes",ce:false,s:"A legítima defesa exige agressão atual ou futura.",j:"ERRADO. Deve ser atual OU iminente (art. 25)."},
+ {t:"Excludentes",ce:true,s:"Estado de necessidade, legítima defesa, estrito cumprimento do dever legal e exercício regular de direito excluem a ilicitude.",j:"CERTO. Art. 23."},
+ {t:"Culpabilidade",ce:true,s:"São elementos da culpabilidade: imputabilidade, potencial consciência da ilicitude e exigibilidade de conduta diversa.",j:"CERTO."},
+ {t:"Imputabilidade",ce:false,s:"A embriaguez voluntária completa exclui a imputabilidade.",j:"ERRADO. Pela actio libera in causa, não exclui (art. 28, II)."},
+ {t:"Imputabilidade",ce:true,s:"Os menores de 18 anos são penalmente inimputáveis, sujeitos ao ECA.",j:"CERTO. Art. 27 do CP; art. 228 da CF."},
+ {t:"Concurso",ce:false,s:"No concurso de pessoas, o partícipe nunca responde pelo crime.",j:"ERRADO. Quem concorre para o crime responde na medida de sua culpabilidade (art. 29)."},
+ {t:"Penas",ce:true,s:"São espécies de pena: privativas de liberdade, restritivas de direitos e multa.",j:"CERTO. Art. 32."},
+ {t:"Penas",ce:true,s:"Os regimes de cumprimento de pena são fechado, semiaberto e aberto.",j:"CERTO. Art. 33."},
+ {t:"Extinção",ce:false,s:"A prescrição penal nunca extingue a punibilidade.",j:"ERRADO. A prescrição é causa de extinção da punibilidade (art. 107, IV)."},
+ {t:"Crimes c/ Adm.",ce:false,s:"Peculato é crime que só pode ser praticado por particular.",j:"ERRADO. É crime próprio de FUNCIONÁRIO PÚBLICO (art. 312)."},
+ {t:"Crimes c/ Adm.",ce:true,s:"Corrupção passiva é solicitar ou receber vantagem indevida por funcionário em razão da função.",j:"CERTO. Art. 317."},
+ {t:"Crimes c/ Adm.",ce:true,s:"Concussão é exigir vantagem indevida em razão da função pública.",j:"CERTO. Art. 316."},
+ {t:"Crimes c/ Adm.",ce:false,s:"Corrupção ativa só pode ser cometida por funcionário público.",j:"ERRADO. A corrupção ATIVA (art. 333) é do PARTICULAR que oferece vantagem ao funcionário."},
+ {t:"Funcionário",ce:true,s:"Considera-se funcionário público quem exerce cargo, emprego ou função pública, ainda que transitoriamente ou sem remuneração.",j:"CERTO. Art. 327."},
+ {t:"Crimes c/ pessoa",ce:true,s:"O homicídio praticado contra autoridade policial no exercício da função é qualificado.",j:"CERTO. Art. 121, §2º, VII."},
+ {t:"Crimes c/ patrimônio",ce:false,s:"Furto e roubo diferenciam-se apenas pelo valor do bem subtraído.",j:"ERRADO. O roubo emprega violência ou grave ameaça; o furto, não (arts. 155 e 157)."}
+],
+"Direito Processual Penal":[
+ {t:"Inquérito",ce:true,s:"O inquérito policial é procedimento administrativo, inquisitivo e preparatório.",j:"CERTO."},
+ {t:"Inquérito",ce:false,s:"O inquérito policial é indispensável para o oferecimento da denúncia.",j:"ERRADO. É dispensável se já houver provas de autoria e materialidade."},
+ {t:"Inquérito",ce:true,s:"O inquérito pode ser iniciado de ofício pela autoridade policial nos crimes de ação penal pública incondicionada.",j:"CERTO. Art. 5º, I."},
+ {t:"Inquérito",ce:false,s:"O indiciado tem direito ao contraditório pleno durante o inquérito policial.",j:"ERRADO. O inquérito é inquisitivo; o contraditório é diferido para a ação penal."},
+ {t:"Ação penal",ce:false,s:"A ação penal pública é promovida pela vítima mediante queixa-crime.",j:"ERRADO. É promovida pelo MP mediante denúncia. Queixa é da ação privada."},
+ {t:"Ação penal",ce:true,s:"Na ação penal privada, o ofendido ou seu representante oferece queixa-crime.",j:"CERTO."},
+ {t:"Prisão",ce:true,s:"É flagrante quem é encontrado, logo após, com objetos que façam presumir ser o autor da infração.",j:"CERTO. Art. 302, IV (presumido)."},
+ {t:"Prisão",ce:false,s:"A prisão temporária pode ser decretada de ofício pelo juiz.",j:"ERRADO. Depende de representação da autoridade policial ou requerimento do MP."},
+ {t:"Prisão",ce:true,s:"Após a prisão em flagrante, o auto é remetido ao juiz em até 24h, com audiência de custódia.",j:"CERTO. Art. 306, §1º."},
+ {t:"Prisão",ce:false,s:"A prisão preventiva pode ser decretada de ofício pelo juiz na fase de investigação.",j:"ERRADO. Depende de requerimento (MP, querelante, assistente) ou representação da autoridade policial."},
+ {t:"Prisão",ce:true,s:"Qualquer do povo PODERÁ e as autoridades policiais DEVERÃO prender quem esteja em flagrante delito.",j:"CERTO. Art. 301."},
+ {t:"Provas",ce:false,s:"As provas obtidas por meios ilícitos são admitidas se confirmadas por outras provas.",j:"ERRADO. São inadmissíveis (art. 5º, LVI da CF; art. 157)."},
+ {t:"Provas",ce:true,s:"O exame de corpo de delito é indispensável quando a infração deixa vestígios.",j:"CERTO. Art. 158."},
+ {t:"Competência",ce:true,s:"A competência será, de regra, determinada pelo lugar em que se consumar a infração.",j:"CERTO. Art. 70."},
+ {t:"Fiança",ce:false,s:"A autoridade policial pode conceder fiança em qualquer crime.",j:"ERRADO. Só em infrações com pena máxima não superior a 4 anos (art. 322)."},
+ {t:"Princípios",ce:true,s:"Vigora a presunção de inocência até o trânsito em julgado da sentença condenatória.",j:"CERTO. Art. 5º, LVII da CF."},
+ {t:"Princípios",ce:true,s:"É assegurado ao preso o direito de permanecer calado.",j:"CERTO. Art. 5º, LXIII da CF."},
+ {t:"Jurisdição",ce:false,s:"O juiz pode condenar o réu por fatos não descritos na denúncia, sem aditamento.",j:"ERRADO. Fere o contraditório; exige correlação entre acusação e sentença."},
+ {t:"Recursos",ce:true,s:"A apelação é o recurso cabível, em regra, contra a sentença definitiva de condenação ou absolvição.",j:"CERTO. Art. 593."},
+ {t:"Nulidades",ce:false,s:"Toda e qualquer irregularidade processual gera nulidade absoluta.",j:"ERRADO. Vigora 'pas de nullité sans grief' — sem prejuízo, não se declara nulidade."}
+],
+"Legislação Especial":[
+ {t:"Drogas 11.343",ce:false,s:"O usuário de drogas (art. 28) está sujeito a pena de prisão.",j:"ERRADO. Penas: advertência, prestação de serviços e medida educativa — sem prisão."},
+ {t:"Drogas 11.343",ce:true,s:"O tráfico é equiparado a hediondo, inafiançável e insuscetível de graça ou anistia.",j:"CERTO. Art. 5º, XLIII da CF."},
+ {t:"Drogas 11.343",ce:true,s:"É possível o tráfico privilegiado, com redução de pena para o réu primário, de bons antecedentes e sem vínculo com organização.",j:"CERTO. Art. 33, §4º."},
+ {t:"Drogas 11.343",ce:false,s:"O porte de droga para consumo pessoal gera reincidência e maus antecedentes como crime comum.",j:"ERRADO. O art. 28 não enseja prisão; a jurisprudência afasta a reincidência típica de crime comum."},
+ {t:"Armas 10.826",ce:false,s:"Porte e posse de arma de fogo são a mesma conduta.",j:"ERRADO. POSSE é na residência/trabalho; PORTE é trazer consigo fora desses locais."},
+ {t:"Armas 10.826",ce:true,s:"O disparo de arma de fogo em via pública é crime, salvo em legítima defesa.",j:"CERTO. Art. 15."},
+ {t:"Armas 10.826",ce:true,s:"O porte ilegal de arma de fogo de uso restrito é crime mais grave que o de uso permitido.",j:"CERTO. Arts. 14 e 16."},
+ {t:"Armas 10.826",ce:false,s:"Comércio ilegal de arma de fogo é contravenção penal.",j:"ERRADO. É CRIME (art. 17 do Estatuto do Desarmamento)."},
+ {t:"Maria da Penha",ce:false,s:"A Lei Maria da Penha aplica-se somente à violência física contra a mulher.",j:"ERRADO. Abrange física, psicológica, sexual, patrimonial e moral (art. 7º)."},
+ {t:"Maria da Penha",ce:true,s:"É vedada a aplicação de penas de cesta básica ou multa isolada.",j:"CERTO. Art. 17."},
+ {t:"Maria da Penha",ce:true,s:"O juiz pode decretar medidas protetivas de urgência, como afastamento do agressor do lar.",j:"CERTO. Art. 22."},
+ {t:"Tortura 9.455",ce:true,s:"O crime de tortura é inafiançável e insuscetível de graça ou anistia.",j:"CERTO. Art. 1º, §6º."},
+ {t:"Tortura 9.455",ce:false,s:"A condenação por tortura não gera a perda do cargo público.",j:"ERRADO. Acarreta a perda do cargo, função ou emprego (art. 1º, §5º)."},
+ {t:"Abuso 13.869",ce:false,s:"Os crimes de abuso de autoridade admitem modalidade culposa.",j:"ERRADO. Exigem dolo específico (art. 1º, §1º)."},
+ {t:"Crime Organizado",ce:true,s:"Organização criminosa é a associação de 4 ou mais pessoas, estruturalmente ordenada, para obter vantagem mediante infrações com pena máxima superior a 4 anos.",j:"CERTO. Lei 12.850/13."},
+ {t:"Crime Organizado",ce:true,s:"A colaboração premiada é meio de obtenção de prova previsto na Lei de Organização Criminosa.",j:"CERTO. Art. 4º."},
+ {t:"Racismo 7.716",ce:true,s:"A injúria racial, após a Lei 14.532/22, foi equiparada ao racismo, sendo imprescritível e inafiançável.",j:"CERTO."},
+ {t:"ECA",ce:false,s:"Considera-se criança a pessoa até 16 anos.",j:"ERRADO. Criança = até 12 incompletos; adolescente = 12 a 18 (art. 2º)."},
+ {t:"ECA",ce:true,s:"Ao adolescente autor de ato infracional aplicam-se medidas socioeducativas, não penas.",j:"CERTO."},
+ {t:"Contravenções",ce:true,s:"A direção de veículo sem habilitação, gerando perigo de dano, pode configurar infração penal.",j:"CERTO (art. 309 do CTB)."},
+ {t:"Lavagem 9.613",ce:true,s:"Ocultar ou dissimular a origem de bens provenientes de infração penal configura lavagem de dinheiro.",j:"CERTO. Art. 1º."},
+ {t:"Interceptação 9.296",ce:false,s:"A interceptação telefônica pode ser determinada diretamente pela autoridade policial.",j:"ERRADO. Depende de ordem JUDICIAL (art. 5º, XII da CF; Lei 9.296/96)."}
+],
+"Direitos Humanos":[
+ {t:"DUDH",ce:true,s:"A Declaração Universal dos Direitos Humanos foi adotada pela ONU em 1948.",j:"CERTO. 10/12/1948."},
+ {t:"DUDH",ce:false,s:"A DUDH é um tratado juridicamente vinculante com força de lei.",j:"ERRADO. É declaração (resolução), sem força vinculante por si só."},
+ {t:"DUDH",ce:true,s:"Todos os seres humanos nascem livres e iguais em dignidade e direitos.",j:"CERTO. Art. 1º da DUDH."},
+ {t:"Características",ce:true,s:"São características dos direitos humanos: universalidade, indivisibilidade, inalienabilidade e imprescritibilidade.",j:"CERTO."},
+ {t:"Características",ce:false,s:"Os direitos humanos podem ser renunciados definitivamente pelo titular.",j:"ERRADO. São inalienáveis e irrenunciáveis."},
+ {t:"Gerações",ce:false,s:"Os direitos de 1ª geração são os sociais, econômicos e culturais.",j:"ERRADO. 1ª geração = civis e políticos (liberdade). Sociais são de 2ª."},
+ {t:"Gerações",ce:true,s:"Os direitos de 2ª geração ligam-se à igualdade (sociais, econômicos e culturais).",j:"CERTO."},
+ {t:"Gerações",ce:true,s:"Os direitos de 3ª geração ligam-se à fraternidade/solidariedade (meio ambiente, paz).",j:"CERTO."},
+ {t:"Tratados",ce:true,s:"Tratados de direitos humanos aprovados em 2 turnos, por 3/5 em cada Casa, equivalem a emendas constitucionais.",j:"CERTO. Art. 5º, §3º da CF."},
+ {t:"Sistema",ce:false,s:"A Corte Interamericana de Direitos Humanos tem sede no Brasil.",j:"ERRADO. Fica em San José, Costa Rica."},
+ {t:"Sistema",ce:true,s:"O Pacto de San José da Costa Rica é a Convenção Americana sobre Direitos Humanos.",j:"CERTO. 1969, ratificado pelo Brasil."},
+ {t:"Princípios",ce:true,s:"A dignidade da pessoa humana é o núcleo e fundamento dos direitos humanos.",j:"CERTO."},
+ {t:"Tortura",ce:true,s:"Ninguém será submetido a tortura nem a tratamento desumano ou degradante.",j:"CERTO. Art. 5º, III da CF e DUDH."},
+ {t:"Igualdade",ce:true,s:"Todos são iguais perante a lei, sem distinção de qualquer natureza.",j:"CERTO. Art. 5º, caput, da CF."},
+ {t:"Prisão",ce:false,s:"É admitida a pena de morte no Brasil para crimes hediondos.",j:"ERRADO. Só em caso de guerra declarada (art. 5º, XLVII, a)."},
+ {t:"Grupos",ce:true,s:"A proteção da criança, do idoso e da pessoa com deficiência é reconhecida por normas de direitos humanos.",j:"CERTO."},
+ {t:"ONU",ce:true,s:"Os Pactos de 1966 (Direitos Civis e Políticos; Econômicos, Sociais e Culturais) deram força jurídica aos princípios da DUDH.",j:"CERTO."},
+ {t:"Dir. Humanos",ce:false,s:"Os direitos humanos protegem apenas os cidadãos nacionais de cada país.",j:"ERRADO. São universais — protegem todo ser humano, independentemente de nacionalidade."}
+],
+"Ética no Serviço Público":[
+ {t:"Decreto 1.171",ce:true,s:"O servidor deve tratar com urbanidade as pessoas, sendo a cortesia um dever ético.",j:"CERTO. Decreto 1.171/94."},
+ {t:"Decreto 1.171",ce:false,s:"A conduta do servidor só é avaliada entre o legal e o ilegal.",j:"ERRADO. Também entre o HONESTO e o DESONESTO."},
+ {t:"Decreto 1.171",ce:true,s:"A dignidade e o decoro no exercício do cargo integram os deveres éticos do servidor.",j:"CERTO."},
+ {t:"Princípios",ce:true,s:"A moralidade da Administração não se limita à lei, abrangendo o bem comum.",j:"CERTO."},
+ {t:"Deveres",ce:false,s:"É facultado ao servidor zelar pela economia do material e do patrimônio público.",j:"ERRADO. É DEVER zelar pela economia e conservação."},
+ {t:"Deveres",ce:true,s:"É dever do servidor ser probo, reto, leal e justo no exercício da função.",j:"CERTO."},
+ {t:"Deveres",ce:false,s:"O servidor pode deixar o usuário esperando por um favor pessoal, pois o horário é flexível.",j:"ERRADO. Deixar o cidadão à espera por favor é vedado; a ausência pode ser 'atentado contra o bem comum'."},
+ {t:"Vedações",ce:true,s:"É vedado ao servidor usar o cargo para obter favorecimento pessoal ou de terceiros.",j:"CERTO."},
+ {t:"Vedações",ce:true,s:"É vedado ao servidor retirar documento da repartição sem autorização.",j:"CERTO. Vedação expressa do Código."},
+ {t:"Comissão",ce:true,s:"A única penalidade aplicável pela Comissão de Ética é a censura.",j:"CERTO."},
+ {t:"Comissão",ce:false,s:"A Comissão de Ética pode aplicar pena de demissão ao servidor.",j:"ERRADO. A demissão é da Lei 8.112; a Comissão de Ética só aplica CENSURA."},
+ {t:"8.112",ce:false,s:"O estágio probatório tem duração de 2 anos.",j:"ERRADO. É de 3 anos (36 meses)."},
+ {t:"8.112",ce:true,s:"São penalidades: advertência, suspensão, demissão, cassação de aposentadoria e destituição de cargo em comissão.",j:"CERTO. Art. 127."},
+ {t:"8.112",ce:false,s:"A advertência pode ser aplicada por escrito ou verbalmente.",j:"ERRADO. É sempre por ESCRITO (art. 129)."},
+ {t:"8.112",ce:true,s:"A suspensão não pode exceder 90 dias.",j:"CERTO. Art. 130."},
+ {t:"8.112",ce:true,s:"A demissão pode ser aplicada em caso de improbidade administrativa.",j:"CERTO. Art. 132."},
+ {t:"Improbidade",ce:true,s:"Atentar contra os princípios da Administração é modalidade de improbidade.",j:"CERTO. Art. 11 da Lei 8.429/92."},
+ {t:"Conflito",ce:true,s:"Configura conflito de interesses o servidor atuar em assunto no qual tenha interesse particular.",j:"CERTO. Lei 12.813/13."},
+ {t:"Acesso info",ce:false,s:"A regra na Administração é o sigilo das informações; a publicidade é exceção.",j:"ERRADO. A regra é a PUBLICIDADE/transparência; o sigilo é exceção (Lei 12.527/11)."}
+],
+"Informática":[
+ {t:"Hardware",ce:false,s:"A memória RAM é não volátil e mantém os dados ao desligar.",j:"ERRADO. A RAM é VOLÁTIL; perde os dados ao desligar."},
+ {t:"Hardware",ce:true,s:"O SSD é um dispositivo de armazenamento mais rápido que o HD mecânico.",j:"CERTO."},
+ {t:"Hardware",ce:false,s:"A CPU é o dispositivo responsável por armazenar permanentemente os arquivos.",j:"ERRADO. A CPU processa; o armazenamento é no HD/SSD."},
+ {t:"Software",ce:true,s:"Windows, Linux e macOS são sistemas operacionais.",j:"CERTO."},
+ {t:"Software",ce:false,s:"Um software livre é, necessariamente, gratuito.",j:"ERRADO. Livre refere-se à liberdade de uso/modificação, não ao preço."},
+ {t:"Redes",ce:false,s:"Endereço IP e endereço MAC são a mesma coisa.",j:"ERRADO. IP é lógico (rede); MAC é físico (placa de rede)."},
+ {t:"Redes",ce:true,s:"HTTPS usa criptografia (TLS/SSL) para proteger a comunicação.",j:"CERTO."},
+ {t:"Redes",ce:true,s:"A LAN é uma rede local; a WAN é uma rede de longa distância.",j:"CERTO."},
+ {t:"Redes",ce:false,s:"URL e e-mail são protocolos de rede.",j:"ERRADO. URL é endereço de recurso; e-mail é serviço. Protocolos são HTTP, FTP, SMTP etc."},
+ {t:"Segurança",ce:false,s:"Phishing é um hardware que protege a rede contra invasões.",j:"ERRADO. Phishing é golpe para roubar dados. Quem protege é o firewall."},
+ {t:"Segurança",ce:true,s:"Ransomware é malware que criptografa arquivos e exige resgate.",j:"CERTO."},
+ {t:"Segurança",ce:true,s:"Um cavalo de Troia (trojan) se disfarça de programa legítimo para enganar o usuário.",j:"CERTO."},
+ {t:"Segurança",ce:false,s:"Backup incremental copia todos os arquivos a cada execução.",j:"ERRADO. Copia só o que mudou. Quem copia tudo é o backup COMPLETO."},
+ {t:"Segurança",ce:true,s:"A autenticação em dois fatores aumenta a segurança ao exigir uma segunda verificação além da senha.",j:"CERTO."},
+ {t:"Segurança",ce:true,s:"Firewall é um mecanismo que controla o tráfego de entrada e saída de uma rede.",j:"CERTO."},
+ {t:"Internet",ce:true,s:"Um cookie é um pequeno arquivo que o site armazena no navegador do usuário.",j:"CERTO."},
+ {t:"Internet",ce:false,s:"O navegador e o mecanismo de busca (Google) são a mesma coisa.",j:"ERRADO. O navegador (Chrome/Edge) é o programa; o buscador é um serviço acessado por ele."},
+ {t:"Office/Excel",ce:false,s:"No Excel, =SOMA(A1:A3) soma apenas A1 e A3.",j:"ERRADO. ':' indica intervalo: soma A1, A2 e A3."},
+ {t:"Office/Excel",ce:true,s:"No Excel, $A$1 trava a referência (referência absoluta).",j:"CERTO."},
+ {t:"Office/Excel",ce:false,s:"No Excel, toda fórmula começa com o símbolo de porcentagem (%).",j:"ERRADO. Começa com o sinal de igual (=)."},
+ {t:"Office/Word",ce:true,s:"No Word, Ctrl+B deixa o texto selecionado em negrito.",j:"CERTO. (B de 'bold')."},
+ {t:"Atalhos",ce:false,s:"No Windows, Ctrl+V é o atalho para copiar.",j:"ERRADO. Ctrl+V é COLAR; copiar é Ctrl+C."},
+ {t:"Atalhos",ce:true,s:"No Windows, Ctrl+Z desfaz a última ação.",j:"CERTO."},
+ {t:"Nuvem",ce:true,s:"OneDrive, Google Drive e Dropbox são serviços de armazenamento em nuvem.",j:"CERTO."}
+],
+"Matemática / Raciocínio Lógico":[
+ {t:"Porcentagem",ce:true,s:"Aumentar um valor em 10% e depois reduzir 10% não retorna ao valor original.",j:"CERTO. 100 → 110 → 99."},
+ {t:"Porcentagem",ce:true,s:"30% de 200 é igual a 60.",j:"CERTO. 0,30 × 200 = 60."},
+ {t:"Porcentagem",ce:false,s:"Um produto de R$80 com 25% de desconto passa a custar R$70.",j:"ERRADO. 25% de 80 = 20; fica R$60."},
+ {t:"Lógica",ce:false,s:"A negação de 'Todo policial é honesto' é 'Nenhum policial é honesto'.",j:"ERRADO. É 'Algum policial NÃO é honesto'."},
+ {t:"Lógica",ce:true,s:"A condicional 'Se p, então q' só é falsa quando p é verdadeiro e q é falso.",j:"CERTO. V→F = Falso."},
+ {t:"Lógica",ce:false,s:"A conjunção 'p e q' é verdadeira quando pelo menos uma é verdadeira.",j:"ERRADO. Só quando AMBAS são verdadeiras. 'Pelo menos uma' é a disjunção."},
+ {t:"Lógica",ce:true,s:"A disjunção 'p ou q' é falsa apenas quando ambas são falsas.",j:"CERTO."},
+ {t:"Lógica",ce:true,s:"A contrapositiva de 'Se p, então q' é 'Se não q, então não p', logicamente equivalente.",j:"CERTO."},
+ {t:"Lógica",ce:false,s:"A negação de 'Se chove, então levo guarda-chuva' é 'Se não chove, não levo'.",j:"ERRADO. É 'chove E não levo guarda-chuva' (p ∧ ~q)."},
+ {t:"Lógica",ce:true,s:"Em uma tabela-verdade com 3 proposições simples há 8 linhas.",j:"CERTO. 2³ = 8."},
+ {t:"Conjuntos",ce:true,s:"Se A tem 3 elementos, o número de subconjuntos de A é 8.",j:"CERTO. 2³ = 8."},
+ {t:"Conjuntos",ce:false,s:"A interseção de dois conjuntos reúne todos os elementos de ambos.",j:"ERRADO. Isso é a UNIÃO. A interseção tem só os elementos COMUNS."},
+ {t:"Proporção",ce:false,s:"Se 4 operários fazem uma obra em 10 dias, 8 operários farão em 20 dias.",j:"ERRADO. Grandezas inversas: o dobro faz na METADE (5 dias)."},
+ {t:"Proporção",ce:true,s:"Se 2 kg custam R$10, então 5 kg custam R$25 (proporção direta).",j:"CERTO."},
+ {t:"Equação",ce:false,s:"A equação 2x + 6 = 10 tem solução x = 8.",j:"ERRADO. 2x = 4 → x = 2."},
+ {t:"Equação",ce:true,s:"Se 3x = 21, então x = 7.",j:"CERTO."},
+ {t:"MMC/MDC",ce:true,s:"O MMC de 4 e 6 é 12.",j:"CERTO. Menor múltiplo comum."},
+ {t:"Sequência",ce:true,s:"Na sequência 2, 4, 8, 16..., cada termo é o dobro do anterior (PG de razão 2).",j:"CERTO."},
+ {t:"Média",ce:false,s:"A média aritmética de 4, 6 e 10 é 8.",j:"ERRADO. (4+6+10)/3 = 20/3 ≈ 6,67."},
+ {t:"Probabilidade",ce:true,s:"A probabilidade de sair cara em uma moeda honesta é 1/2.",j:"CERTO."},
+ {t:"Combinatória",ce:true,s:"O número de maneiras de ordenar 3 pessoas em fila é 6.",j:"CERTO. 3! = 6."}
+],
+"Física":[
+ {t:"Cinemática",ce:true,s:"No MRU, a velocidade é constante e a aceleração é nula.",j:"CERTO."},
+ {t:"Cinemática",ce:false,s:"Um corpo a 72 km/h move-se a 10 m/s.",j:"ERRADO. 72 ÷ 3,6 = 20 m/s."},
+ {t:"Cinemática",ce:true,s:"108 km/h equivalem a 30 m/s.",j:"CERTO. 108 ÷ 3,6 = 30."},
+ {t:"Cinemática",ce:true,s:"Na queda livre (sem ar), todos os corpos caem com a mesma aceleração (g).",j:"CERTO."},
+ {t:"Cinemática",ce:false,s:"No MRUV, a velocidade é constante.",j:"ERRADO. No MRUV a aceleração é constante; a velocidade varia."},
+ {t:"Dinâmica",ce:false,s:"Pela 2ª Lei de Newton, força é massa dividida pela aceleração.",j:"ERRADO. F = m × a."},
+ {t:"Dinâmica",ce:true,s:"A 1ª Lei de Newton (inércia) diz que um corpo mantém seu estado na ausência de força resultante.",j:"CERTO."},
+ {t:"Dinâmica",ce:true,s:"A toda ação corresponde uma reação de mesma intensidade e sentido oposto.",j:"CERTO. 3ª Lei de Newton."},
+ {t:"Dinâmica",ce:false,s:"O peso de um corpo é igual à sua massa.",j:"ERRADO. Peso = massa × gravidade (P = m·g). Massa é constante; peso varia com g."},
+ {t:"Energia",ce:true,s:"A energia cinética depende da massa e do quadrado da velocidade.",j:"CERTO. Ec = m·v²/2 — dobrar a velocidade quadruplica a energia."},
+ {t:"Energia",ce:true,s:"A energia potencial gravitacional aumenta com a altura.",j:"CERTO. Ep = m·g·h."},
+ {t:"Atrito",ce:false,s:"A força de atrito atua no mesmo sentido do movimento, favorecendo-o.",j:"ERRADO. O atrito se opõe ao movimento."},
+ {t:"Trânsito",ce:true,s:"Em maior velocidade, a distância de frenagem cresce de forma mais que proporcional.",j:"CERTO. Cresce com o quadrado da velocidade."},
+ {t:"Grandezas",ce:false,s:"Velocidade é grandeza escalar, pois tem apenas módulo.",j:"ERRADO. É VETORIAL (módulo, direção e sentido)."},
+ {t:"Grandezas",ce:true,s:"Massa, tempo e temperatura são grandezas escalares.",j:"CERTO."},
+ {t:"Pressão",ce:true,s:"Pressão é força dividida pela área.",j:"CERTO. P = F/A."},
+ {t:"Ótica",ce:true,s:"A luz, ao passar de um meio para outro, pode sofrer refração (mudança de direção).",j:"CERTO."},
+ {t:"Eletricidade",ce:false,s:"Pela Lei de Ohm, a corrente é igual à tensão multiplicada pela resistência.",j:"ERRADO. I = U/R (tensão DIVIDIDA pela resistência)."},
+ {t:"Calor",ce:true,s:"O calor sempre flui espontaneamente do corpo mais quente para o mais frio.",j:"CERTO."},
+ {t:"Movimento",ce:false,s:"Um corpo em movimento circular uniforme não possui aceleração.",j:"ERRADO. Há aceleração centrípeta (muda a direção da velocidade)."}
+],
+"Geopolítica e Atualidades":[
+ {t:"Brasil",ce:true,s:"O Brasil é formado por 26 estados e o Distrito Federal, em 5 regiões.",j:"CERTO."},
+ {t:"Fronteiras",ce:false,s:"O Brasil faz fronteira com todos os países da América do Sul.",j:"ERRADO. Não faz fronteira com Chile e Equador."},
+ {t:"Fronteiras",ce:true,s:"O Brasil é o país com maior número de fronteiras na América do Sul.",j:"CERTO. Faz divisa com 10 países."},
+ {t:"Blocos",ce:true,s:"O Mercosul é bloco econômico sul-americano, com o Brasil como fundador.",j:"CERTO. Tratado de Assunção, 1991."},
+ {t:"Blocos",ce:true,s:"O BRICS reúne, entre outros, Brasil, Rússia, Índia, China e África do Sul.",j:"CERTO. Com ampliação a partir de 2024."},
+ {t:"Blocos",ce:false,s:"A União Europeia é um bloco militar criado para defesa coletiva.",j:"ERRADO. A UE é bloco econômico/político. O bloco militar é a OTAN."},
+ {t:"ONU",ce:false,s:"O Brasil é membro permanente do Conselho de Segurança da ONU.",j:"ERRADO. Permanentes: EUA, Rússia, China, França e Reino Unido."},
+ {t:"Geografia",ce:true,s:"A Amazônia abriga a maior floresta tropical e a maior bacia hidrográfica do mundo.",j:"CERTO."},
+ {t:"Geografia",ce:false,s:"O Cerrado é o maior bioma brasileiro em extensão.",j:"ERRADO. O maior é a Amazônia; o Cerrado é o segundo."},
+ {t:"Energia",ce:false,s:"A matriz elétrica brasileira baseia-se predominantemente em combustíveis fósseis.",j:"ERRADO. É predominantemente RENOVÁVEL (hidrelétricas em destaque)."},
+ {t:"Segurança",ce:true,s:"As rodovias federais são rotas relevantes no combate ao tráfico de drogas e armas pela PRF.",j:"CERTO."},
+ {t:"Mundo",ce:true,s:"A Rússia iniciou invasão em larga escala à Ucrânia em fevereiro de 2022.",j:"CERTO."},
+ {t:"Mundo",ce:true,s:"A China é o país mais populoso do mundo, disputando a liderança com a Índia.",j:"CERTO. A Índia ultrapassou a China em população por volta de 2023."},
+ {t:"Economia",ce:true,s:"O agronegócio tem peso expressivo nas exportações brasileiras.",j:"CERTO. Soja, carnes e milho entre os principais."},
+ {t:"Meio ambiente",ce:true,s:"O desmatamento e as queimadas contribuem para as mudanças climáticas.",j:"CERTO."},
+ {t:"Brasil",ce:false,s:"A capital do Brasil é a cidade de São Paulo.",j:"ERRADO. A capital federal é Brasília (desde 1960)."},
+ {t:"Demografia",ce:true,s:"A população brasileira está envelhecendo, com queda na taxa de natalidade.",j:"CERTO. Tendência confirmada pelos censos recentes."},
+ {t:"Migração",ce:true,s:"O Brasil recebeu fluxos migratórios recentes de venezuelanos e haitianos.",j:"CERTO."}
+],
+"Língua Espanhola":[
+ {t:"Falsos amigos",ce:false,s:"'Embarazada' significa 'envergonhada'.",j:"ERRADO. Significa GRÁVIDA."},
+ {t:"Falsos amigos",ce:true,s:"'Oficina' significa 'escritório'.",j:"CERTO. Oficina mecânica = 'taller'."},
+ {t:"Falsos amigos",ce:false,s:"'Exquisito' significa 'esquisito/estranho'.",j:"ERRADO. Significa DELICIOSO, requintado."},
+ {t:"Falsos amigos",ce:false,s:"'Apellido' significa 'apelido'.",j:"ERRADO. Significa SOBRENOME. Apelido = 'apodo'."},
+ {t:"Falsos amigos",ce:false,s:"'Largo' significa 'largo/amplo'.",j:"ERRADO. Significa COMPRIDO/longo. Largo = 'ancho'."},
+ {t:"Falsos amigos",ce:false,s:"'Rato' em espanhol é o animal roedor.",j:"ERRADO. 'Rato' significa um MOMENTO/instante. O roedor é 'ratón'."},
+ {t:"Falsos amigos",ce:true,s:"'Pelo' em espanhol significa 'cabelo'.",j:"CERTO."},
+ {t:"Gramática",ce:true,s:"Os artigos definidos masculinos são 'el' (singular) e 'los' (plural).",j:"CERTO. Femininos: 'la' e 'las'."},
+ {t:"Gramática",ce:false,s:"O pronome 'usted' é usado em contexto informal com amigos.",j:"ERRADO. É FORMAL/de respeito. Informal = 'tú'."},
+ {t:"Gramática",ce:true,s:"O verbo 'ser' e o verbo 'estar' existem separadamente em espanhol, como em português.",j:"CERTO."},
+ {t:"Gramática",ce:false,s:"Em espanhol, a negação usa a palavra 'não' (com til).",j:"ERRADO. Usa-se 'no' (sem til)."},
+ {t:"Vocabulário",ce:true,s:"'Rodovia' pode ser dita como 'carretera'.",j:"CERTO."},
+ {t:"Vocabulário",ce:true,s:"'Hoje' em espanhol é 'hoy'.",j:"CERTO."},
+ {t:"Vocabulário",ce:false,s:"'Mañana' significa apenas 'manhã', nunca 'amanhã'.",j:"ERRADO. 'Mañana' significa tanto 'manhã' quanto 'amanhã', conforme o contexto."},
+ {t:"Números",ce:true,s:"O número 500 escreve-se 'quinientos'.",j:"CERTO."},
+ {t:"Números",ce:false,s:"O número 7 em espanhol é 'sieto'.",j:"ERRADO. É 'siete'."},
+ {t:"Pronúncia",ce:true,s:"Em espanhol, a letra 'ñ' tem som semelhante ao 'nh' do português.",j:"CERTO. Ex.: 'niño'."},
+ {t:"Interrogação",ce:true,s:"Em espanhol, as perguntas abrem com '¿' e fecham com '?'.",j:"CERTO. Ex.: ¿Cómo estás?"}
+],
+"Redação":[
+ {t:"Dissertação",ce:true,s:"A dissertação argumentativa defende um ponto de vista com base em argumentos.",j:"CERTO."},
+ {t:"Estrutura",ce:true,s:"A estrutura básica é introdução, desenvolvimento e conclusão.",j:"CERTO."},
+ {t:"Pessoa",ce:false,s:"Recomenda-se escrever em 1ª pessoa, com 'eu acho'.",j:"ERRADO. Prefere-se impessoalidade (3ª pessoa)."},
+ {t:"Coesão",ce:true,s:"Conectivos como 'portanto', 'contudo' e 'além disso' garantem a coesão.",j:"CERTO."},
+ {t:"Coerência",ce:true,s:"A coerência é a ausência de contradições e a lógica entre as ideias do texto.",j:"CERTO."},
+ {t:"Clareza",ce:false,s:"Na redação técnica, quanto mais rebuscada e longa a frase, melhor a nota.",j:"ERRADO. Valoriza-se clareza, objetividade e concisão."},
+ {t:"Argumentação",ce:true,s:"Dados estatísticos, fatos históricos e citações são argumentos válidos.",j:"CERTO."},
+ {t:"Introdução",ce:false,s:"A introdução deve apresentar a conclusão detalhada do texto.",j:"ERRADO. Apresenta tema e tese; o detalhamento fica no desenvolvimento."},
+ {t:"Tese",ce:true,s:"A tese é o ponto de vista central que o autor defende no texto.",j:"CERTO."},
+ {t:"Conclusão",ce:true,s:"A conclusão deve retomar a tese e, se possível, propor solução ou síntese.",j:"CERTO."},
+ {t:"Norma",ce:false,s:"É permitido usar gírias e abreviações de internet na redação oficial.",j:"ERRADO. Exige-se norma culta."},
+ {t:"Tipos",ce:false,s:"Texto narrativo e texto dissertativo são a mesma coisa.",j:"ERRADO. Narrativo conta fatos/enredo; dissertativo defende ideias."},
+ {t:"Paragrafação",ce:true,s:"Cada parágrafo de desenvolvimento deve girar em torno de uma ideia principal.",j:"CERTO."},
+ {t:"Linguagem",ce:true,s:"A redação oficial deve primar pela formalidade, clareza e impessoalidade.",j:"CERTO. Manual de Redação da Presidência."},
+ {t:"Correção",ce:false,s:"Erros de ortografia e concordância não influenciam a nota da redação.",j:"ERRADO. A correção gramatical é critério de avaliação."},
+ {t:"Repertório",ce:true,s:"Citar leis, dados e autores pertinentes fortalece a argumentação.",j:"CERTO. Desde que bem relacionados ao tema."},
+ {t:"Repetição",ce:false,s:"Repetir a mesma palavra várias vezes é recomendado para reforçar a ideia.",j:"ERRADO. Evita-se a repetição; usa-se sinônimos e pronomes (coesão)."},
+ {t:"Proposta",ce:true,s:"Em bancas que exigem, a conclusão pode trazer uma proposta de intervenção.",j:"CERTO. Com agente, ação e meio."}
+]
+};
+
+const matSel=document.getElementById('mat');
+const sizeSel=document.getElementById('size');
+Object.keys(SUBJECTS).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k+' ('+SUBJECTS[k].length+')';matSel.appendChild(o);});
+
+let MODE='treino'; // 'treino' | 'simulado'
+let pool=[], deck=[], i=0, ok=0, err=0, seen, answered=null;
+let resp=[], t0=0, timerId=null, finished=false;
+const stage=document.getElementById('stage');
+const $=id=>document.getElementById(id);
+
+function shuffleArr(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;}
+function fmt(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0');}
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}}
+function tick(){$('timer').textContent='⏱️ '+fmt(Date.now()-t0);}
+
+function newRound(){
+  stopTimer();
+  pool=(SUBJECTS[matSel.value]||[]).map((c,idx)=>({...c,idx}));
+  const s=sizeSel.value;
+  let arr=shuffleArr(pool.slice());
+  deck = s==='all' ? arr : arr.slice(0, Math.min(Number(s),arr.length));
+  i=0;ok=0;err=0;answered=null;seen=new Set();finished=false;
+  if(MODE==='simulado'){
+    resp=new Array(deck.length).fill(null);
+    t0=Date.now();$('timer').textContent='⏱️ 0:00';timerId=setInterval(tick,1000);
+    $('foot').innerHTML='⏱️ <b>Simulado</b>: responda sem ver a correção · no fim, nota no critério Cebraspe (<b>acertos − erros</b>) · deixar em branco <b>não</b> desconta';
+  }else{
+    $('timer').textContent='';
+    $('foot').innerHTML='Julgue a afirmação: <b>V</b> = Verdadeiro, <b>F</b> = Falso · correção <b>na hora</b> · banco total de <b>'+pool.length+'</b> itens — cada rodada sorteia novas';
+  }
+  render();
+}
+
+// ----- TREINO -----
+function doneScreen(total){
+  const pct=total?Math.round((ok/total)*100):0;
+  stage.innerHTML='<div class="done"><div class="big">🎉 Fim!</div><p><b>'+matSel.value+'</b><br>Rodada de <b>'+total+'</b> afirmações.<br>Acertos: <b>'+ok+'</b> · Erros: '+err+' &nbsp;(<b>'+pct+'%</b>)</p><div class="nav"><button onclick="window.__round()">🔀 Nova rodada</button></div></div>';
+}
+function ansTreino(v){if(answered!==null)return;answered=v;const c=deck[i];seen.add(c.idx);(v===c.ce)?ok++:err++;render();}
+function nextTreino(){answered=null;i++;render();}
+
+// ----- SIMULADO -----
+function ansSim(v){if(finished)return;resp[i]=v;i++;if(i>=deck.length)finishSim();else render();}
+function skipSim(){if(finished)return;resp[i]=null;i++;if(i>=deck.length)finishSim();else render();}
+function prevSim(){if(finished)return;if(i>0){i--;render();}}
+function finishSim(){finished=true;stopTimer();render();}
+function simDone(){
+  let ac=0,er=0,br=0,rev='';
+  deck.forEach((c,k)=>{const a=resp[k];let st;
+    if(a===null){br++;st='⚪ branco';}
+    else if(a===c.ce){ac++;st='<span style="color:var(--green)">✓ acertou</span>';}
+    else{er++;st='<span style="color:var(--red)">✗ errou</span>';}
+    if(a!==c.ce){rev+='<div class="just" style="text-align:left;margin-top:8px"><b>'+(k+1)+'.</b> '+c.s+'<br><span class="vsub">Gabarito: <b>'+(c.ce?'Certo':'Errado')+'</b> · '+st+'</span><br>'+c.j+'</div>';}
+  });
+  const liq=ac-er,total=deck.length,pct=total?Math.round(ac/total*100):0,tempo=fmt(Date.now()-t0);
+  $('prog').style.width='100%';$('pos').textContent=total+'/'+total;$('score').textContent='C−E: '+liq;
+  stage.innerHTML='<div class="done"><div class="big">🏁 Resultado</div>'+
+    '<p><b>'+matSel.value+'</b> · '+total+' itens · ⏱️ '+tempo+'</p>'+
+    '<p style="font-size:1.05rem">Acertos: <b style="color:var(--green)">'+ac+'</b> · Erros: <b style="color:var(--red)">'+er+'</b> · Branco: <b>'+br+'</b></p>'+
+    '<p style="font-size:1.4rem;font-family:var(--f-head);margin:6px 0">Nota Cebraspe (C − E): <b>'+liq+'</b></p>'+
+    '<p class="vsub">'+pct+'% de acerto bruto · na prova real cada erro anula um acerto</p>'+
+    '<div class="nav"><button onclick="window.__round()">🔄 Novo simulado</button></div>'+
+    (rev?'<div style="margin-top:16px;text-align:left"><div class="side-label">Revisar (itens que você não acertou)</div>'+rev+'</div>':'<p style="margin-top:14px">👏 Você gabaritou!</p>')+
+    '</div>';
+}
+
+function render(){
+  const total=deck.length;
+  if(MODE==='simulado'){
+    if(finished){return simDone();}
+    $('prog').style.width=total?Math.round(i/total*100)+'%':'0';
+    $('pos').textContent=(i+1)+'/'+total;$('score').textContent=i+' resp.';
+    const c=deck[i];
+    stage.innerHTML='<div class="card">'+
+      '<div class="tagrow"><span class="chip">'+matSel.value+'</span><span class="chip ghost">'+c.t+'</span></div>'+
+      '<div class="side-label">Item '+(i+1)+' de '+total+'</div><div class="q">'+c.s+'</div>'+
+      '<div class="btns"><button class="ce-certo" onclick="window.__ans(true)">✓ CERTO</button><button class="ce-errado" onclick="window.__ans(false)">✗ ERRADO</button></div>'+
+      '<div class="nav"><button onclick="window.__prev()">← Voltar</button><button onclick="window.__skip()">Pular (branco)</button><button onclick="window.__finish()">Encerrar</button></div>'+
+      '</div>';
+    return;
+  }
+  $('prog').style.width=total?Math.round(seen.size/total*100)+'%':'0';
+  $('score').textContent='✓ '+ok+' · ✗ '+err;
+  if(i>=total){$('pos').textContent=total+'/'+total;doneScreen(total);return;}
+  $('pos').textContent=(i+1)+'/'+total;
+  const c=deck[i];
+  const show=answered!==null;
+  const correct=show&&answered===c.ce;
+  stage.innerHTML='<div class="card">'+
+    '<div class="tagrow"><span class="chip">'+matSel.value+'</span><span class="chip ghost">'+c.t+'</span></div>'+
+    '<div class="side-label">Julgue o item</div><div class="q">'+c.s+'</div>'+
+    (show
+      ? '<div class="answer"><div class="verdict '+(correct?'good':'bad')+'">'+(correct?'✓ Você acertou!':'✗ Você errou')+'</div>'+
+        '<div class="vsub">Você marcou <b>'+(answered?'Verdadeiro':'Falso')+'</b> · gabarito: <b>'+(c.ce?'Verdadeiro':'Falso')+'</b></div>'+
+        '<div class="just">'+c.j+'</div></div><button class="next" onclick="window.__next()">Próxima →</button>'
+      : '<div class="btns"><button class="ce-certo" onclick="window.__ans(true)">✓ VERDADEIRO</button><button class="ce-errado" onclick="window.__ans(false)">✗ FALSO</button></div>')+
+    '</div>';
+}
+
+window.__ans=v=>{MODE==='simulado'?ansSim(v):ansTreino(v);};
+window.__next=nextTreino;window.__skip=skipSim;window.__prev=prevSim;window.__finish=finishSim;window.__round=newRound;
+
+function setMode(m){MODE=m;$('mTreino').setAttribute('aria-pressed',m==='treino');$('mSim').setAttribute('aria-pressed',m==='simulado');newRound();}
+$('mTreino').onclick=()=>setMode('treino');
+$('mSim').onclick=()=>setMode('simulado');
+matSel.addEventListener('change',newRound);
+sizeSel.addEventListener('change',newRound);
+$('shuffle').addEventListener('click',newRound);
+document.addEventListener('keydown',e=>{
+  if(MODE==='simulado'){
+    if(finished)return;
+    if(e.key==='v'||e.key==='V'||e.key==='c'||e.key==='C')window.__ans(true);
+    else if(e.key==='f'||e.key==='F'||e.key==='e'||e.key==='E')window.__ans(false);
+    else if(e.key==='ArrowLeft')window.__prev();
+    return;
+  }
+  if(answered===null){
+    if(e.key==='v'||e.key==='V'||e.key==='c'||e.key==='C')window.__ans(true);
+    else if(e.key==='f'||e.key==='F'||e.key==='e'||e.key==='E')window.__ans(false);
+  }else if(e.code==='Space'||e.key==='ArrowRight'){e.preventDefault();window.__next();}
+});
+newRound();
+</script>

@@ -1,0 +1,9 @@
+# Materiais do curso (direitos autorais) — nunca versionar
+*.pdf
+AULAS PRF/
+PDFs/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

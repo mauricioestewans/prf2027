@@ -1,0 +1,184 @@
+<title>Flashcards Trânsito</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Verdadeiro/Falso (estilo Cebraspe). Afirmação em cima, botões V/F, correção na hora embaixo. Paleta calma azul-petróleo + âmbar (foco TDAH). */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --surface-2:#eef2f6;
+  --fg:#1b2733; --muted:#5a6b7b; --line:#d9e1e8;
+  --accent:#0f7b86; --accent-ink:#0a5a62; --amber:#e8a317;
+  --green:#2f8f5b; --green-soft:#d8f0e2; --red:#c0493b; --red-soft:#f7ddd9;
+  --f-head:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --green-soft:#16352a; --red:#e8766a; --red-soft:#3a1f1c; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --green-soft:#16352a; --red:#e8766a; --red-soft:#3a1f1c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);margin:0;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px;
+  padding-block:22px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+h1{font-family:var(--f-head);font-size:clamp(1.4rem,5vw,2rem);margin:0;letter-spacing:-.02em}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select{padding:8px 10px;border-radius:9px;background:var(--surface);color:var(--fg);border:1px solid var(--line);font-family:var(--f-body);font-size:.9rem}
+.sbtn{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 12px;border-radius:9px;cursor:pointer;font-size:.9rem}
+.bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar > i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.meta{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.card{position:relative;border:1px solid var(--line);border-radius:20px;background:var(--surface);
+  min-height:290px;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:26px 22px;
+  box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.tagrow{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--accent-ink)}
+.chip.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.side-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.q{font-family:var(--f-head);font-size:clamp(1.12rem,3.3vw,1.45rem);line-height:1.32;text-wrap:balance}
+.btns{display:flex;gap:10px}
+.btns button{flex:1;padding:16px;border:0;border-radius:12px;font-weight:800;cursor:pointer;font-size:1.02rem;font-family:var(--f-body);transition:transform .05s}
+.btns button:active{transform:scale(.97)}
+.ce-certo{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.ce-errado{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+.answer{border-top:1px dashed var(--line);padding-top:14px}
+.verdict{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-weight:800;font-size:1.18rem}
+.verdict.good{color:var(--green)} .verdict.bad{color:var(--red)}
+.vsub{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:2px}
+.just{background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:.95rem;margin-top:10px}
+.next{width:100%;padding:14px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer;font-size:1rem;margin-top:12px}
+.done{text-align:center;padding:30px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.done .big{font-family:var(--f-head);font-size:2rem;color:var(--accent)}
+.nav{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.nav button{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.foot{text-align:center;color:var(--muted);font-size:.82rem}
+.foot b{color:var(--fg)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Legislação de Trânsito · CTB · estilo Cebraspe</div>
+    <h1>Trânsito — Verdadeiro ou Falso</h1>
+  </header>
+
+  <div class="controls">
+    <select id="filtro" aria-label="Filtrar bloco">
+      <option value="all">Todos os blocos</option>
+      <option value="Disposições &amp; Vias">Disposições &amp; Vias (Aulas 1–3)</option>
+      <option value="Sistema Nacional de Trânsito">Sistema Nacional de Trânsito (4–21)</option>
+      <option value="Circulação &amp; Conduta">Circulação &amp; Conduta (22–30)</option>
+    </select>
+    <button class="sbtn" id="shuffle">🔀 Embaralhar</button>
+    <button class="sbtn" id="reset">↺ Reiniciar</button>
+  </div>
+
+  <div class="bar"><i id="prog"></i></div>
+  <div class="meta"><span id="pos">—</span><span id="score">✓ 0 · ✗ 0</span></div>
+
+  <div id="stage"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+// ce:true = VERDADEIRO. s = afirmação, j = correção/justificativa com o artigo.
+const ITEMS=[
+ // ---- Disposições & Vias (Aulas 1–3) ----
+ {b:"Disposições & Vias",t:"Aula 01",ce:true, s:"O trânsito nas vias terrestres de qualquer natureza (urbanas e rurais) é regido pelo CTB — Lei 9.503/97.",j:"CERTO. O CTB abrange as vias terrestres de qualquer natureza."},
+ {b:"Disposições & Vias",t:"Aula 01",ce:false,s:"O conceito legal de trânsito restringe-se à circulação de veículos, não abrangendo parada e estacionamento.",j:"ERRADO. Abrange também parada, estacionamento e operação de carga/descarga (art. 1º, §1º)."},
+ {b:"Disposições & Vias",t:"Aula 01",ce:true, s:"A responsabilidade dos órgãos do Sistema Nacional de Trânsito por danos é objetiva.",j:"CERTO. Art. 1º, §3º — responde sem prova de culpa, mas exige nexo causal."},
+ {b:"Disposições & Vias",t:"Aula 01",ce:false,s:"A prioridade absoluta das ações dos órgãos de trânsito é garantir a fluidez do tráfego.",j:"ERRADO. A prioridade é a defesa da VIDA, incluída a saúde e o meio ambiente (art. 1º, §5º)."},
+ {b:"Disposições & Vias",t:"Aula 02",ce:true, s:"As vias urbanas classificam-se em: trânsito rápido, arterial, coletora e local.",j:"CERTO. Art. 60."},
+ {b:"Disposições & Vias",t:"Aula 02",ce:true, s:"As vias rurais dividem-se em rodovias (pavimentadas) e estradas (não pavimentadas).",j:"CERTO."},
+ {b:"Disposições & Vias",t:"Aula 02",ce:false,s:"Sem sinalização, a velocidade máxima em via LOCAL urbana é de 40 km/h.",j:"ERRADO. Local = 30 km/h. Os 40 km/h são da via coletora (art. 61)."},
+ {b:"Disposições & Vias",t:"Aula 03",ce:false,s:"Em rodovia de pista dupla sem sinalização, a velocidade máxima para ônibus é de 110 km/h.",j:"ERRADO. Ônibus/micro-ônibus = 90 km/h. Os 110 km/h são de automóveis, camionetas e motos."},
+ {b:"Disposições & Vias",t:"Aula 03",ce:true, s:"Nas estradas (vias rurais não pavimentadas), a velocidade máxima sem sinalização é de 60 km/h.",j:"CERTO. Art. 61, §1º."},
+ {b:"Disposições & Vias",t:"Aula 03",ce:false,s:"O acostamento integra a pista de rolamento e destina-se à circulação normal dos veículos.",j:"ERRADO. É parte diferenciada da pista, para parada/estacionamento de emergência (e pedestres/bikes quando não há local próprio)."},
+ // ---- Sistema Nacional de Trânsito (Aulas 4–21) ----
+ {b:"Sistema Nacional de Trânsito",t:"Aula 04",ce:true, s:"O SNT reúne órgãos e entidades da União, dos Estados, do DF e dos Municípios.",j:"CERTO."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 05",ce:true, s:"A Polícia Rodoviária Federal e as polícias militares integram o Sistema Nacional de Trânsito.",j:"CERTO. Art. 7º."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 06",ce:true, s:"O CONTRAN é o órgão máximo normativo e consultivo e coordenador do SNT.",j:"CERTO."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 08",ce:false,s:"O órgão máximo EXECUTIVO de trânsito da União é o CONTRAN.",j:"ERRADO. O executivo da União é a SENATRAN. O CONTRAN é normativo/consultivo."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 09",ce:true, s:"Compete ao CONTRAN estabelecer as normas regulamentares do CTB e as diretrizes da Política Nacional de Trânsito.",j:"CERTO. Art. 12."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 11",ce:true, s:"CETRAN e CONTRANDIFE atuam como 2ª instância para julgar recursos contra decisões das JARIs.",j:"CERTO. Art. 14."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 12",ce:false,s:"O CONTRAN edita suas normas por meio de portarias.",j:"ERRADO. O CONTRAN edita suas normas por RESOLUÇÕES."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 13",ce:true, s:"As câmaras temáticas são órgãos técnicos vinculados ao CONTRAN e NÃO têm poder normativo.",j:"CERTO. Art. 13."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 14",ce:true, s:"A JARI é órgão colegiado de 1ª instância para julgar recursos contra penalidades de trânsito.",j:"CERTO. Arts. 16 a 18."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 15",ce:true, s:"Compete à PRF cumprir e fazer cumprir a legislação de trânsito nas rodovias e estradas federais.",j:"CERTO. Art. 20."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 16",ce:true, s:"Os órgãos executivos rodoviários (ex.: DNIT, DER) projetam, sinalizam e conservam as vias sob sua jurisdição.",j:"CERTO. Art. 21."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 17",ce:true, s:"Compete à SENATRAN estabelecer procedimentos sobre o RENACH e o RENAVAM.",j:"CERTO. Art. 19."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 18",ce:true, s:"Compete ao DETRAN registrar e licenciar veículos e habilitar condutores (emitir CNH).",j:"CERTO. Art. 22."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 19",ce:true, s:"Compete ao município fiscalizar e autuar infrações de circulação, parada e estacionamento nas vias urbanas.",j:"CERTO. Art. 24."},
+ {b:"Sistema Nacional de Trânsito",t:"Aula 20",ce:true, s:"As polícias militares executam a fiscalização de trânsito mediante convênio com o órgão executivo de trânsito.",j:"CERTO. Art. 23."},
+ // ---- Circulação & Conduta (Aulas 22–30) ----
+ {b:"Circulação & Conduta",t:"Aula 22",ce:true, s:"O condutor deve ter o domínio do veículo a todo momento, dirigindo com atenção e cuidados indispensáveis.",j:"CERTO. Art. 28."},
+ {b:"Circulação & Conduta",t:"Aula 23",ce:false,s:"A circulação dos veículos faz-se pela esquerda e a ultrapassagem pela direita.",j:"ERRADO. Invertido: circulação pela DIREITA; ultrapassagem pela ESQUERDA (art. 29, I)."},
+ {b:"Circulação & Conduta",t:"Aula 24",ce:true, s:"Na rotatória não sinalizada, tem preferência o veículo que já está circulando nela.",j:"CERTO. Art. 29, III."},
+ {b:"Circulação & Conduta",t:"Aula 24",ce:false,s:"Entre veículos de portes diferentes, o de menor porte é o responsável pela segurança.",j:"ERRADO. O de MAIOR porte é sempre responsável pela segurança dos menores (art. 29, §2º)."},
+ {b:"Circulação & Conduta",t:"Aula 25",ce:true, s:"Ambulância, polícia, bombeiros e fiscalização de trânsito, em serviço de urgência, têm prioridade de passagem.",j:"CERTO. Art. 29, VII — com alarme sonoro e luz vermelha intermitente."},
+ {b:"Circulação & Conduta",t:"Aula 25",ce:true, s:"Ao se aproximar um veículo de emergência com sinais ligados, deve-se dar passagem encostando o mais à direita.",j:"CERTO. Parando, se necessário, para liberar a via."},
+ {b:"Circulação & Conduta",t:"Aula 29",ce:true, s:"O uso da luz baixa é obrigatório à noite e nos túneis.",j:"CERTO. Art. 40 — e de dia sob chuva forte, neblina ou cerração."},
+ {b:"Circulação & Conduta",t:"Aula 29",ce:false,s:"É permitido o uso prolongado e sucessivo da buzina como forma de advertência.",j:"ERRADO. Só é permitido um toque BREVE, para evitar acidentes (art. 41)."},
+ {b:"Circulação & Conduta",t:"Aula 30",ce:true, s:"Antes de manobra com deslocamento lateral, o condutor deve indicar com antecedência, por gesto ou seta.",j:"CERTO. Arts. 34-35."},
+ {b:"Circulação & Conduta",t:"Aula 30",ce:false,s:"Na conversão à esquerda, o condutor deve aproximar-se o máximo possível do bordo DIREITO da via.",j:"ERRADO. Deve aproximar-se do EIXO da via (ou do bordo esquerdo, em mão única) — art. 38."},
+ {b:"Circulação & Conduta",t:"Aula 30",ce:false,s:"O veículo que vai ingressar numa via tem preferência sobre os que já circulam nela.",j:"ERRADO. A preferência é de quem JÁ está circulando na via."}
+];
+
+let deck=[], i=0, ok=0, err=0, seen, answered=null;
+const stage=document.getElementById('stage');
+const $=id=>document.getElementById(id);
+
+function build(){
+  const f=$('filtro').value;
+  deck=ITEMS.map((c,idx)=>({...c,idx})).filter(c=>f==='all'||c.b===f);
+  i=0;ok=0;err=0;answered=null;seen=new Set();
+  $('foot').innerHTML='Julgue a afirmação: <b>V</b> = Verdadeiro, <b>F</b> = Falso · a correção aparece <b>na hora</b>, embaixo';
+  render();
+}
+function shuffle(){for(let k=deck.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[deck[k],deck[j]]=[deck[j],deck[k]];}i=0;answered=null;render();}
+
+function doneScreen(total){
+  const pct=total?Math.round((ok/total)*100):0;
+  stage.innerHTML='<div class="done"><div class="big">🎉 Fim!</div><p>Você passou por <b>'+total+'</b> afirmações.<br>Acertos: <b>'+ok+'</b> · Erros: '+err+' &nbsp;(<b>'+pct+'%</b> de acerto)</p><div class="nav"><button onclick="window.__restart()">↺ De novo</button><button onclick="window.__shuffle()">🔀 Embaralhar</button></div></div>';
+}
+
+function render(){
+  const total=deck.length;
+  $('prog').style.width=total?Math.round((seen.size/total)*100)+'%':'0';
+  $('score').textContent='✓ '+ok+' · ✗ '+err;
+  if(i>=total){$('pos').textContent=total+'/'+total;doneScreen(total);return;}
+  $('pos').textContent=(i+1)+'/'+total;
+  const c=deck[i];
+  const show=answered!==null;
+  const correct=show&&answered===c.ce;
+  stage.innerHTML='<div class="card">'+
+    '<div class="tagrow"><span class="chip">'+c.t+'</span><span class="chip ghost">'+c.b+'</span></div>'+
+    '<div class="side-label">Julgue o item</div><div class="q">'+c.s+'</div>'+
+    (show
+      ? '<div class="answer"><div class="verdict '+(correct?'good':'bad')+'">'+(correct?'✓ Você acertou!':'✗ Você errou')+'</div>'+
+        '<div class="vsub">Você marcou <b>'+(answered?'Verdadeiro':'Falso')+'</b> · gabarito: <b>'+(c.ce?'Verdadeiro':'Falso')+'</b></div>'+
+        '<div class="just">'+c.j+'</div></div><button class="next" onclick="window.__next()">Próxima →</button>'
+      : '<div class="btns"><button class="ce-certo" onclick="window.__ans(true)">✓ VERDADEIRO</button><button class="ce-errado" onclick="window.__ans(false)">✗ FALSO</button></div>')+
+    '</div>';
+}
+function ans(v){if(answered!==null)return;answered=v;const c=deck[i];seen.add(c.idx);(v===c.ce)?ok++:err++;render();}
+function next(){answered=null;i++;render();}
+window.__ans=ans;window.__next=next;
+window.__restart=()=>{i=0;ok=0;err=0;answered=null;seen=new Set();render();};
+window.__shuffle=shuffle;
+
+$('filtro').addEventListener('change',build);
+$('shuffle').addEventListener('click',shuffle);
+$('reset').addEventListener('click',window.__restart);
+document.addEventListener('keydown',e=>{
+  if(answered===null){
+    if(e.key==='v'||e.key==='V'||e.key==='c'||e.key==='C')ans(true);
+    else if(e.key==='f'||e.key==='F'||e.key==='e'||e.key==='E')ans(false);
+  }else if(e.code==='Space'||e.key==='ArrowRight'){e.preventDefault();next();}
+});
+build();
+</script>

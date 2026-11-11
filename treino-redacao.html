@@ -1,0 +1,215 @@
+<title>Redação PRF — Treino</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --surface-2:#eef2f6;
+  --fg:#1b2733; --muted:#5a6b7b; --line:#d9e1e8;
+  --accent:#0f7b86; --accent-ink:#0a5a62; --amber:#e8a317;
+  --green:#2f8f5b; --red:#c0493b;
+  --f-head:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --red:#e8766a; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1519; --surface:#172129; --surface-2:#1f2a33; --fg:#e8eef3; --muted:#9db0bf;
+  --line:#2a3741; --accent:#3fb6c0; --accent-ink:#8fe0e6; --amber:#f0b73e;
+  --green:#5fc88a; --red:#e8766a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);margin:0;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:16px;
+  padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+h1{font-family:var(--f-head);font-size:clamp(1.4rem,5vw,2rem);margin:0;letter-spacing:-.02em}
+.xlink{display:inline-flex;align-items:center;gap:6px;margin-top:6px;align-self:flex-start;text-decoration:none;font-weight:700;font-size:.86rem;color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
+.panel{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:18px 18px;box-shadow:0 6px 20px rgba(0,0,0,.05)}
+.tema-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.tema{font-family:var(--f-head);font-size:clamp(1.1rem,3.2vw,1.4rem);line-height:1.3;text-wrap:balance}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer;font-family:var(--f-body);font-size:.95rem}
+.btn-p{background:var(--accent);color:#fff}
+.btn-s{background:var(--surface-2);color:var(--fg);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+textarea{width:100%;min-height:300px;resize:vertical;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);
+  font-family:var(--f-body);font-size:1rem;line-height:1.7;padding:14px 16px;margin-top:10px}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.count{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.count b{color:var(--fg)}
+.hint{font-size:.84rem;color:var(--muted);margin-top:4px}
+.result{margin-top:4px}
+.result h3{font-family:var(--f-head);margin:16px 0 6px;font-size:1.12rem}
+.result h3:first-child{margin-top:0}
+.result ul{margin:6px 0;padding-left:20px}
+.result li{margin:4px 0}
+.result p{margin:6px 0}
+.result strong{color:var(--accent-ink)}
+.score-big{font-family:var(--f-head);font-weight:800;font-size:1.6rem;color:var(--accent)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.warn{background:color-mix(in srgb,var(--amber) 16%,transparent);border-radius:12px;padding:12px 14px;font-size:.92rem}
+.foot{text-align:center;color:var(--muted);font-size:.82rem}
+.foot b{color:var(--fg)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Concurso PRF · Redação dissertativo-argumentativa</div>
+    <h1>Treino de Redação</h1>
+    <a class="xlink" href="https://claude.ai/artifact/7P3Y9xcQgbE8wnd6S7FCbF" target="_blank" rel="noopener">🎯 Ir para o Quiz Verdadeiro/Falso →</a>
+  </header>
+
+  <div class="panel">
+    <div class="tema-label">📌 Tema proposto</div>
+    <div class="tema" id="tema">—</div>
+    <div class="row">
+      <button class="btn btn-s" id="novoTema">🎲 Novo tema</button>
+      <button class="btn btn-s" id="limpar">🧹 Limpar texto</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="tema-label">✍️ Sua redação</div>
+    <textarea id="texto" placeholder="Desenvolva aqui o seu texto dissertativo-argumentativo: introdução (apresente o tema e sua tese), 2 parágrafos de desenvolvimento (com argumentos e repertório) e conclusão (com proposta de intervenção)."></textarea>
+    <div class="count">
+      <span><b id="nw">0</b> palavras · <b id="nl">0</b> linhas · <b id="nc">0</b> caracteres</span>
+      <span id="dica-lin">Alvo: ~25–30 linhas</span>
+    </div>
+    <div class="row">
+      <button class="btn btn-p" id="corrigir">🔎 Corrigir minha redação</button>
+      <button class="btn btn-s" id="parar" style="display:none">⏹ Parar</button>
+    </div>
+    <div class="hint" id="hint">A correção é feita pelo Claude e aparece abaixo, com nota, pontos fortes, o que ajustar e como chegar ao 1000.</div>
+  </div>
+
+  <div class="panel" id="boxResult" style="display:none">
+    <div class="tema-label">📝 Correção</div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+const TEMAS=[
+ "Os desafios da segurança no trânsito brasileiro",
+ "O combate ao tráfico de drogas e de armas nas rodovias federais",
+ "A valorização dos profissionais de segurança pública no Brasil",
+ "Os limites entre segurança pública e direitos individuais",
+ "O papel da educação no combate à violência no trânsito",
+ "Os efeitos da impunidade na sociedade brasileira",
+ "Desafios para a garantia dos direitos humanos no sistema prisional brasileiro",
+ "O enfrentamento à violência contra a mulher no Brasil",
+ "A corrupção como entrave ao desenvolvimento nacional",
+ "Tecnologia e privacidade: os desafios da vigilância estatal",
+ "O papel do Estado na redução das desigualdades regionais",
+ "Mobilidade urbana e qualidade de vida nas cidades brasileiras",
+ "Os impactos da desinformação (fake news) na democracia",
+ "Os desafios da fiscalização das fronteiras brasileiras",
+ "Preservação ambiental e desenvolvimento econômico no Brasil",
+ "O combate ao trabalho análogo à escravidão no Brasil",
+ "A saúde mental dos profissionais de segurança pública",
+ "A inclusão das pessoas com deficiência na sociedade brasileira",
+ "Os desafios do combate ao crime organizado no Brasil",
+ "Ética e cidadania na atuação do servidor público"
+];
+
+const $=id=>document.getElementById(id);
+const temaEl=$('tema'), txt=$('texto'), res=$('result'), box=$('boxResult');
+let sample=null, ctl=null;
+
+function pick(){ let t; do{ t=TEMAS[Math.floor(Math.random()*TEMAS.length)]; }while(t===temaEl.textContent && TEMAS.length>1); temaEl.textContent=t; save(); }
+
+function counts(){
+  const v=txt.value;
+  const w=(v.trim().match(/\S+/g)||[]).length;
+  const c=v.length;
+  // ~ linhas: considera ~75 caracteres por linha manuscrita OU quebras reais, o que for maior
+  const brk=v.split(/\n/).length;
+  const est=Math.max(brk, Math.ceil(c/75));
+  $('nw').textContent=w; $('nc').textContent=c; $('nl').textContent=v.trim()?est:0;
+  save();
+}
+
+function save(){ try{ localStorage.setItem('redacao_prf', JSON.stringify({t:temaEl.textContent, v:txt.value})); }catch(e){} }
+function load(){ try{ const d=JSON.parse(localStorage.getItem('redacao_prf')||'null'); if(d){ if(d.t)temaEl.textContent=d.t; if(d.v)txt.value=d.v; } }catch(e){} }
+
+// mini markdown -> html (seguro)
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function md(src){
+  const lines=esc(src).split('\n'); let html='', inUl=false;
+  const inline=s=>s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>');
+  for(let ln of lines){
+    const t=ln.trim();
+    if(/^#{1,6}\s/.test(t)){ if(inUl){html+='</ul>';inUl=false;} html+='<h3>'+inline(t.replace(/^#{1,6}\s/,''))+'</h3>'; continue; }
+    if(/^[-*]\s/.test(t)){ if(!inUl){html+='<ul>';inUl=true;} html+='<li>'+inline(t.replace(/^[-*]\s/,''))+'</li>'; continue; }
+    if(/^\d+\.\s/.test(t)){ if(!inUl){html+='<ul>';inUl=true;} html+='<li>'+inline(t.replace(/^\d+\.\s/,''))+'</li>'; continue; }
+    if(inUl){html+='</ul>';inUl=false;}
+    if(t) html+='<p>'+inline(t)+'</p>';
+  }
+  if(inUl)html+='</ul>';
+  return html;
+}
+
+function buildPrompt(){
+  return "Você é um corretor especialista em redação de concursos públicos brasileiros (banca Cebraspe, concurso da PRF) e também no padrão de nota de 0 a 1000 (estilo ENEM). "
+   +"Corrija a redação do candidato com rigor técnico, mas de forma didática, objetiva e motivadora (o candidato tem TDAH: seja claro, direto e organizado).\n\n"
+   +"TEMA PROPOSTO:\n\""+temaEl.textContent+"\"\n\n"
+   +"REDAÇÃO DO CANDIDATO:\n\"\"\"\n"+txt.value+"\n\"\"\"\n\n"
+   +"Avalie como texto DISSERTATIVO-ARGUMENTATIVO. Atribua nota de 0 a 200 em cada uma das 5 competências e a nota total (0 a 1000):\n"
+   +"C1. Domínio da norma culta (gramática, ortografia, pontuação, concordância, crase).\n"
+   +"C2. Compreender a proposta e aplicar o tipo textual (não fugir ao tema; dissertativo-argumentativo).\n"
+   +"C3. Selecionar, relacionar e organizar argumentos, com repertório pertinente.\n"
+   +"C4. Coesão e coerência (conectivos, progressão das ideias, paragrafação).\n"
+   +"C5. Proposta de intervenção / conclusão (detalhada, viável e que respeite os direitos humanos).\n\n"
+   +"Responda em português, em Markdown, EXATAMENTE nesta estrutura (use ## nos títulos):\n"
+   +"## 🏆 Nota: X/1000\n"
+   +"Uma linha por competência: **C1 – Norma culta:** nota/200 — comentário curto. (repita até C5)\n\n"
+   +"## ✅ Pontos fortes\n- itens curtos\n\n"
+   +"## 🔧 O que ajustar\n- **Trecho:** \"copie um trecho REAL do candidato\" → qual o problema → como corrigir. (dê 3 a 6 itens)\n\n"
+   +"## ✍️ Sugestões de reescrita\n- **Antes:** \"...\" **Depois:** \"...\" (2 a 4 exemplos)\n\n"
+   +"## 🎯 Para chegar ao 1000\nPassos concretos e priorizados, em lista.\n\n"
+   +"Cite trechos reais do texto. Se a redação estiver vazia, muito curta ou fora do tema, diga isso claramente e oriente como recomeçar.";
+}
+
+async function corrigir(){
+  if(!sample){ res.innerHTML='<div class="warn">⚠️ A correção automática só funciona quando esta página é aberta <b>dentro do Claude</b> e com você logado. Abra pelo link do Claude e permita o uso quando pedir.</div>'; box.style.display='block'; return; }
+  const v=txt.value.trim();
+  if(v.length<40){ res.innerHTML='<div class="warn">✍️ Escreva um pouco mais antes de corrigir (pelo menos um parágrafo).</div>'; box.style.display='block'; return; }
+  box.style.display='block';
+  res.innerHTML='<p><span class="spin"></span>Analisando sua redação… isso pode levar alguns segundos.</p>';
+  $('corrigir').disabled=true; $('parar').style.display='inline-block';
+  ctl=new AbortController();
+  try{
+    await sample(buildPrompt(), {
+      modelTier:'complex', signal:ctl.signal, cache:false,
+      onText:({text})=>{ res.innerHTML=md(text); }
+    });
+  }catch(e){
+    if(e.code==='cancelled'){ res.innerHTML=(e.text?md(e.text):'')+'<p class="hint">⏹ Correção interrompida.</p>'; }
+    else if(e.code==='not_granted'){ res.innerHTML='<div class="warn">Você não permitiu o uso do Claude nesta página. Recarregue e permita para corrigir.</div>'; }
+    else if(e.code==='rate_limited'){ res.innerHTML='<div class="warn">Muitas correções em pouco tempo. Espere um minuto e tente de novo.</div>'; }
+    else{ res.innerHTML='<div class="warn">Não consegui concluir a correção agora ('+(e.code||'erro')+'). Tente novamente em instantes.</div>'+(e.text?md(e.text):''); }
+  }finally{
+    $('corrigir').disabled=false; $('parar').style.display='none';
+  }
+}
+
+$('novoTema').onclick=pick;
+$('limpar').onclick=()=>{ if(confirm('Apagar o texto atual?')){ txt.value=''; counts(); } };
+$('corrigir').onclick=corrigir;
+$('parar').onclick=()=>ctl&&ctl.abort();
+txt.addEventListener('input',counts);
+
+load();
+if(temaEl.textContent==='—'||!temaEl.textContent.trim()) pick();
+counts();
+$('foot').innerHTML='Dica: escreva introdução + 2 parágrafos de desenvolvimento + conclusão com proposta · salve o hábito de treinar <b>1 redação por semana</b>.';
+
+(async()=>{ try{ sample=await claude.use('sample'); }catch(e){ sample=null; }
+  if(!sample){ $('hint').innerHTML='⚠️ Abra esta página <b>dentro do Claude</b> (logado) para a correção automática funcionar.'; }
+})();
+</script>

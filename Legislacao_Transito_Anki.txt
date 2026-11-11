@@ -1,0 +1,39 @@
+#separator:Tab
+#html:false
+#columns:Frente	Verso	Tags
+O trânsito nas vias terrestres do território nacional é regido por qual lei?	Pelo CTB — Código de Trânsito Brasileiro (Lei 9.503/97), que abrange vias de qualquer natureza.	Transito Aula01
+O conceito legal de trânsito (art. 1º, §1º) abrange o quê?	A utilização das vias por pessoas, veículos e animais, isolados ou em grupos, conduzidos ou não, para circulação, parada, estacionamento e operação de carga/descarga.	Transito Aula01
+Qual a natureza da responsabilidade dos órgãos do SNT por danos (art. 1º, §3º)?	Objetiva — respondem por dano de ação, omissão ou erro na execução de programas e serviços (não exige culpa, mas exige nexo causal; não é indenização automática).	Transito Aula01
+Qual a prioridade absoluta das ações dos órgãos de trânsito (art. 1º, §5º)?	A defesa da vida, nela incluída a preservação da saúde e do meio ambiente.	Transito Aula01
+Como se classificam as vias URBANAS (art. 60)?	Via de trânsito rápido, arterial, coletora e local.	Transito Aula02
+Como se classificam as vias RURAIS?	Rodovias (pavimentadas) e estradas (não pavimentadas).	Transito Aula02
+Velocidades máximas nas vias URBANAS quando não houver sinalização (art. 61)?	Trânsito rápido 80 km/h; arterial 60; coletora 40; local 30.	Transito Aula02
+Velocidades máximas nas RODOVIAS de pista dupla (não sinalizado)?	110 km/h (automóveis, camionetas e motos); 90 (ônibus e micro-ônibus); 80 (demais).	Transito Aula03
+Velocidades máximas nas RODOVIAS de pista simples e nas ESTRADAS?	Pista simples: 100 km/h (automóveis, camionetas e motos) e 90 (demais). Estradas: 60 km/h.	Transito Aula03
+O que é acostamento?	Parte da via diferenciada da pista de rolamento, destinada à parada/estacionamento de emergência e, quando não houver local próprio, à circulação de pedestres e bicicletas.	Transito Aula03
+O que é o Sistema Nacional de Trânsito (SNT)?	Conjunto de órgãos e entidades da União, Estados, DF e Municípios que exercem planejamento, administração, normatização, pesquisa, fiscalização, educação e julgamento de infrações no trânsito.	Transito Aula04
+Quem compõe o SNT (art. 7º)?	CONTRAN; CETRAN e CONTRANDIFE; órgãos executivos de trânsito; órgãos executivos rodoviários; Polícia Rodoviária Federal; polícias militares; e JARI.	Transito Aula05
+Qual é o órgão máximo normativo e consultivo e coordenador do SNT?	O CONTRAN (Conselho Nacional de Trânsito) — é, ao mesmo tempo, coordenador do Sistema e órgão máximo normativo e consultivo.	Transito Aula06
+Qual é o órgão máximo EXECUTIVO de trânsito da União?	A SENATRAN (Secretaria Nacional de Trânsito).	Transito Aula08
+Cite competências do CONTRAN (art. 12).	Estabelecer as normas regulamentares do CTB e as diretrizes da Política Nacional de Trânsito; criar câmaras temáticas; normatizar procedimentos de registro, licenciamento e habilitação; fixar diretrizes da educação para o trânsito.	Transito Aula09
+O que são CETRAN e CONTRANDIFE (art. 14)?	Órgãos normativos, consultivos e coordenadores do trânsito dos Estados (CETRAN) e do DF (CONTRANDIFE); atuam também como 2ª instância para julgar recursos contra decisões das JARIs.	Transito Aula11
+Por qual instrumento o CONTRAN edita suas normas?	Por Resoluções (deliberações do colegiado).	Transito Aula12
+O que são as câmaras temáticas (art. 13)?	Órgãos técnicos vinculados ao CONTRAN, integrados por especialistas, que estudam e dão subsídios — NÃO têm poder normativo.	Transito Aula13
+O que é a JARI e qual sua função (arts. 16-18)?	Junta Administrativa de Recursos de Infrações — órgão colegiado de 1ª instância para julgar recursos contra penalidades (multas) aplicadas pelos órgãos de trânsito.	Transito Aula14
+Quais as competências da Polícia Rodoviária Federal no trânsito (art. 20)?	Cumprir e fazer cumprir a legislação de trânsito nas rodovias e estradas federais; fiscalizar, autuar e aplicar penalidades; patrulhamento ostensivo; controle de peso e dimensões.	Transito Aula15
+O que fazem os órgãos executivos rodoviários (ex.: DNIT, DER) — art. 21?	Cumprir a legislação nas vias sob sua jurisdição; projetar, sinalizar e conservar as vias; fiscalizar, autuar e aplicar penalidades por infrações de sinalização e conservação.	Transito Aula16
+Cite competências da SENATRAN (art. 19).	Supervisionar, coordenar e corrigir os órgãos do SNT; estabelecer procedimentos de RENACH e RENAVAM; organizar a estatística nacional de trânsito; expedir diretrizes da educação para o trânsito.	Transito Aula17
+Cite competências dos DETRANs (órgãos de trânsito dos Estados/DF) — art. 22.	Registrar e licenciar veículos; habilitar condutores (emitir CNH); vistoriar veículos; fiscalizar, autuar e aplicar penalidades.	Transito Aula18
+Cite competências dos órgãos executivos de trânsito do MUNICÍPIO (art. 24).	Planejar, sinalizar e operar o trânsito nas vias urbanas; fiscalizar, autuar e aplicar penalidades por infrações de circulação, parada e estacionamento; implantar e manter a sinalização.	Transito Aula19
+Qual o papel das polícias militares no trânsito (art. 23)?	Executar a fiscalização de trânsito mediante convênio com o órgão executivo de trânsito, atuando como agentes da autoridade de trânsito.	Transito Aula20
+Regra geral de mão de direção e ultrapassagem (art. 29, I)?	A circulação faz-se pela direita; a ultrapassagem, pela esquerda (salvo exceções sinalizadas).	Transito Aula23
+Em cruzamento/rotatória sem sinalização, quem tem preferência (art. 29, III)?	Na rotatória, quem já está circulando nela; nas demais, o veículo que vier pela direita. Sempre respeitadas as preferências de veículos sobre trilhos e de emergência.	Transito Aula24
+Quem é responsável pela segurança no trânsito entre veículos de portes diferentes (art. 29, §2º)?	Os veículos de maior porte são sempre responsáveis pela segurança dos menores; os motorizados, pelos não motorizados; e todos, pela incolumidade dos pedestres.	Transito Aula24
+Quais veículos têm prioridade de passagem em serviço de urgência (art. 29, VII)?	Ambulância, polícia, bombeiros e fiscalização de trânsito — quando em serviço de urgência, com alarme sonoro e luz vermelha intermitente; têm livre circulação, parada e estacionamento.	Transito Aula25
+Qual a conduta ao se aproximar um veículo de emergência com sinais ligados?	Dar passagem imediatamente, encostando-se o mais à direita possível e parando, se necessário, para liberar a via.	Transito Aula25
+Quando é obrigatório manter acesa a luz baixa (art. 40)?	À noite e nos túneis; e de dia sob chuva forte, neblina ou cerração. Motocicletas devem circular sempre com o farol aceso.	Transito Aula29
+Regras de uso da buzina (art. 41)?	Só é permitido um toque breve, como advertência para evitar acidentes. É proibido usá-la de forma prolongada, sucessiva ou perturbadora.	Transito Aula29
+Antes de qualquer manobra com deslocamento lateral, o que o condutor deve fazer (arts. 34-35)?	Certificar-se de que pode executá-la sem perigo e indicar com antecedência, por gesto ou luz indicadora de direção (seta).	Transito Aula30
+Regras para conversão à esquerda e retorno (art. 38)?	Aproximar-se o máximo do eixo da via (ou do bordo esquerdo, em mão única) e executar no menor espaço possível, dando preferência a pedestres e a veículos em sentido contrário.	Transito Aula30
+Entre quem ingressa na via e quem já circula, quem tem preferência?	O veículo que já está circulando na via tem preferência; quem vai ingressar ou sair deve dar a preferência e aguardar oportunidade.	Transito Aula30
+Qual o dever geral de conduta do condutor (art. 28)?	Ter domínio do veículo em todo momento, dirigindo com atenção e os cuidados indispensáveis à segurança do trânsito.	Transito Aula22
