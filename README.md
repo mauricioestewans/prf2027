@@ -9,7 +9,7 @@ Ferramentas de estudo para o concurso da **Polícia Rodoviária Federal (PRF)**,
 | Arquivo | O que é |
 |---|---|
 | [`index.html`](index.html) | Página inicial com atalhos para tudo |
-| [`quiz-verdadeiro-falso.html`](quiz-verdadeiro-falso.html) | Quiz Verdadeiro/Falso das 15 matérias + Simulado estilo prova + **modo Simulado cronometrado** com nota no critério Cebraspe (acertos − erros). Banco de ~350 questões com sorteio aleatório por rodada. |
+| [`quiz-verdadeiro-falso.html`](quiz-verdadeiro-falso.html) | Quiz Verdadeiro/Falso das 15 matérias + Simulado estilo prova + **modo Simulado cronometrado** com nota no critério Cebraspe (acertos − erros). Banco de ~587 questões com sorteio aleatório por rodada. Inclui **leitura obrigatória** (resumo da matéria + timer de 1/3/5 min) antes de responder, para fixação. |
 | [`treino-redacao.html`](treino-redacao.html) | Treino de redação: sorteia o tema, você escreve e a página corrige dando **nota de 0 a 1000** por competência e dicas. *(A correção automática só funciona aberta dentro do Claude, logado.)* |
 | [`rotina-diaria.html`](rotina-diaria.html) | Rotina diária de estudos pensada para TDAH (blocos curtos, rotação de foco, repetição espaçada). |
 | [`flashcards-transito.html`](flashcards-transito.html) | Flashcards de Legislação de Trânsito (versão só de trânsito). |

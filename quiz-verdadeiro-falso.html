@@ -62,6 +62,11 @@ select{padding:9px 10px;border-radius:9px;background:var(--surface);color:var(--
 .nav button{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .foot{text-align:center;color:var(--muted);font-size:.82rem}
 .foot b{color:var(--fg)}
+.resumo{font-size:.95rem;max-height:46vh;overflow:auto}
+.resumo h4{font-family:var(--f-head);margin:12px 0 4px;font-size:1rem;color:var(--accent-ink)}
+.resumo ul{margin:6px 0;padding-left:20px}
+.resumo li{margin:5px 0}
+.resumo b{color:var(--accent-ink)}
 </style>
 
 <div class="wrap">
@@ -83,6 +88,12 @@ select{padding:9px 10px;border-radius:9px;background:var(--surface);color:var(--
       <option value="20" selected>20 por rodada</option>
       <option value="30">30 por rodada</option>
       <option value="all">Todas</option>
+    </select>
+    <select id="leitura" aria-label="Leitura obrigatória">
+      <option value="0">Sem leitura</option>
+      <option value="1">📖 Leitura 1 min</option>
+      <option value="3" selected>📖 Leitura 3 min</option>
+      <option value="5">📖 Leitura 5 min</option>
     </select>
     <button class="sbtn" id="shuffle">🔀 Nova rodada</button>
   </div>
@@ -500,9 +511,367 @@ const SUBJECTS={
 ]
 };
 
+// ===== Banco adicional (mais questões por matéria) =====
+const MORE={
+"Legislação de Trânsito":[
+ {t:"Habilitação",ce:true,s:"A Permissão para Dirigir tem validade de 1 ano e antecede a obtenção da CNH definitiva.",j:"CERTO. Art. 148, §2º."},
+ {t:"Habilitação",ce:false,s:"O condutor com Permissão para Dirigir pode cometer infração grave e ainda obter a CNH definitiva.",j:"ERRADO. Não pode ter cometido infração grave/gravíssima nem ser reincidente em média."},
+ {t:"Infrações",ce:false,s:"Toda infração gravíssima tem o mesmo valor de multa, sem multiplicação.",j:"ERRADO. Há gravíssimas com fator multiplicador (x3, x5, x10, x20, x60)."},
+ {t:"Penalidades",ce:true,s:"São penalidades de trânsito, entre outras: advertência por escrito, multa e suspensão do direito de dirigir.",j:"CERTO. Art. 256."},
+ {t:"Crimes",ce:false,s:"A embriaguez ao volante é crime punível apenas com multa.",j:"ERRADO. Detenção de 6 meses a 3 anos, multa e suspensão (art. 306)."},
+ {t:"Sinalização",ce:true,s:"A ordem do agente de trânsito prevalece sobre a sinalização da via.",j:"CERTO. Art. 89 — agente > sinalização > norma."},
+ {t:"Sinalização",ce:false,s:"A sinalização da via prevalece sobre a ordem do agente de trânsito.",j:"ERRADO. A ordem do agente PREVALECE (art. 89)."},
+ {t:"Velocidade",ce:true,s:"A velocidade mínima de uma via não pode ser inferior à metade da máxima fixada.",j:"CERTO. Art. 62."},
+ {t:"Equipamentos",ce:true,s:"É obrigatório o uso do cinto de segurança por todos os ocupantes do veículo.",j:"CERTO. Art. 65."},
+ {t:"Documentos",ce:false,s:"O licenciamento anual do veículo é facultativo.",j:"ERRADO. É obrigatório (arts. 130-131)."},
+ {t:"Crimes",ce:true,s:"Entregar a direção de veículo a pessoa não habilitada, gerando perigo, é crime de trânsito.",j:"CERTO. Art. 310."},
+ {t:"Pedestre",ce:true,s:"O pedestre que já iniciou a travessia na faixa tem preferência de passagem.",j:"CERTO. Art. 70."}
+],
+"Direito Constitucional":[
+ {t:"Dir. Fundamentais",ce:false,s:"A liberdade de associação permite associações de caráter paramilitar.",j:"ERRADO. É vedada a de caráter paramilitar (art. 5º, XVII)."},
+ {t:"Dir. Fundamentais",ce:true,s:"Ninguém será privado de direitos por motivo de crença religiosa, salvo se a invocar para eximir-se de obrigação legal a todos imposta e recusar prestação alternativa.",j:"CERTO. Art. 5º, VIII."},
+ {t:"Dir. Fundamentais",ce:false,s:"Em caso de crime hediondo, a pena passa da pessoa do condenado aos seus sucessores.",j:"ERRADO. A pena não passará da pessoa do condenado (art. 5º, XLV)."},
+ {t:"Nacionalidade",ce:false,s:"O cargo de Presidente da República pode ser ocupado por brasileiro naturalizado.",j:"ERRADO. É privativo de brasileiro NATO (art. 12, §3º)."},
+ {t:"Dir. Sociais",ce:true,s:"São direitos sociais a educação, a saúde, o trabalho, a moradia e a segurança, entre outros.",j:"CERTO. Art. 6º."},
+ {t:"Adm. Pública",ce:false,s:"O servidor público estável só perde o cargo por decisão judicial transitada em julgado.",j:"ERRADO. Também por processo administrativo e por avaliação de desempenho (art. 41)."},
+ {t:"Poderes",ce:false,s:"O Senado Federal representa o povo, eleito proporcionalmente à população.",j:"ERRADO. Isso é a Câmara. O Senado representa os Estados/DF, 3 por unidade (art. 46)."},
+ {t:"Segurança Pública",ce:true,s:"As polícias penais integram os órgãos da segurança pública.",j:"CERTO. Art. 144, EC 104/2019."},
+ {t:"Controle",ce:true,s:"A ADI é instrumento do controle concentrado de constitucionalidade, julgado pelo STF.",j:"CERTO."},
+ {t:"Remédios",ce:true,s:"O mandado de injunção cabe diante da falta de norma regulamentadora que inviabilize direito constitucional.",j:"CERTO. Art. 5º, LXXI."}
+],
+"Direito Administrativo":[
+ {t:"Princípios",ce:true,s:"Pelo princípio da continuidade, o serviço público não pode sofrer interrupção injustificada.",j:"CERTO."},
+ {t:"Atos",ce:true,s:"A convalidação corrige atos com vícios sanáveis de competência ou forma.",j:"CERTO. Art. 55 da Lei 9.784/99."},
+ {t:"Atos",ce:false,s:"O silêncio administrativo é sempre deferimento tácito do pedido.",j:"ERRADO. Em regra não produz efeito automático; depende de previsão legal."},
+ {t:"Poderes",ce:true,s:"O poder regulamentar permite ao Executivo editar decretos para fiel execução das leis.",j:"CERTO. Art. 84, IV da CF."},
+ {t:"Responsabilidade",ce:false,s:"A responsabilidade do Estado por ato comissivo exige prova de dolo do agente pela vítima.",j:"ERRADO. É objetiva (risco administrativo), sem necessidade de provar dolo/culpa do agente."},
+ {t:"Licitações",ce:true,s:"A Lei 14.133/21 admite contratação direta por dispensa e por inexigibilidade.",j:"CERTO."},
+ {t:"Licitações",ce:false,s:"Na inexigibilidade há competição viável entre fornecedores.",j:"ERRADO. Ocorre quando a competição é INVIÁVEL."},
+ {t:"Controle",ce:true,s:"O controle externo é exercido pelo Legislativo com auxílio do Tribunal de Contas.",j:"CERTO. Art. 71 da CF."},
+ {t:"Agentes",ce:true,s:"Cargo em comissão é de livre nomeação e exoneração, para direção, chefia e assessoramento.",j:"CERTO. Art. 37, V."},
+ {t:"Bens",ce:true,s:"Bens de uso especial são os destinados a repartições e serviços públicos.",j:"CERTO."}
+],
+"Língua Portuguesa":[
+ {t:"Crase",ce:false,s:"Há crase em 'Entreguei o documento à ela'.",j:"ERRADO. Não há crase antes de pronome pessoal: 'a ela'."},
+ {t:"Crase",ce:true,s:"Em 'Dirijo-me a Vossa Senhoria', não há crase.",j:"CERTO. Não há crase antes de pronomes de tratamento (salvo senhora/senhorita/dona)."},
+ {t:"Concordância",ce:true,s:"Em 'Os Estados Unidos influenciam a economia mundial', o verbo no plural está correto.",j:"CERTO. Nome próprio plural com artigo → verbo no plural."},
+ {t:"Regência",ce:true,s:"'Aspirar ao cargo' (no sentido de desejar) está correto quanto à regência.",j:"CERTO. Aspirar (desejar) é transitivo indireto: aspirar A."},
+ {t:"Verbos",ce:false,s:"'Se ele propor uma solução, aceitaremos' está correto.",j:"ERRADO. É 'se ele PROPUSER' (futuro do subjuntivo de propor)."},
+ {t:"Ortografia",ce:false,s:"'Porque' (junto) é usado em perguntas diretas.",j:"ERRADO. Em perguntas usa-se 'por que' (separado)."},
+ {t:"Classes",ce:true,s:"'Onde' refere-se a lugar; 'aonde' indica movimento (ideia de 'a que lugar').",j:"CERTO."},
+ {t:"Semântica",ce:false,s:"'Iminente' e 'eminente' têm o mesmo significado.",j:"ERRADO. 'Iminente' = prestes a ocorrer; 'eminente' = ilustre."},
+ {t:"Sintaxe",ce:true,s:"Em 'Choveu muito ontem', a oração não tem sujeito (verbo impessoal).",j:"CERTO. Fenômeno da natureza."},
+ {t:"Pontuação",ce:true,s:"Usa-se vírgula para isolar o aposto explicativo.",j:"CERTO. Ex.: 'Brasília, capital federal, ...'."},
+ {t:"Coesão",ce:false,s:"O uso excessivo de 'que' e de repetições melhora a clareza do texto.",j:"ERRADO. Prejudica a clareza."},
+ {t:"Verbos",ce:false,s:"'Quando eu reaver o documento, aviso' está correto.",j:"ERRADO. O verbo 'reaver' é defectivo; a forma é 'quando eu reouver'."}
+],
+"Direito Penal":[
+ {t:"Lei penal",ce:true,s:"É possível aplicar a lei penal brasileira a crime cometido no estrangeiro, nos casos de extraterritorialidade.",j:"CERTO. Art. 7º."},
+ {t:"Crime",ce:false,s:"No crime culposo, o agente quer o resultado ou assume o risco de produzi-lo.",j:"ERRADO. Isso é dolo. Culpa = imprudência, negligência ou imperícia."},
+ {t:"Erro",ce:true,s:"O erro sobre elemento do tipo exclui o dolo, mas permite punir por culpa se prevista.",j:"CERTO. Art. 20 (erro de tipo)."},
+ {t:"Penas",ce:false,s:"A pena de multa é calculada em salários mínimos, de 1 a 100.",j:"ERRADO. É em dias-multa (10 a 360) — art. 49."},
+ {t:"Crimes c/ Adm.",ce:true,s:"Prevaricar é retardar ou deixar de praticar ato de ofício para satisfazer interesse ou sentimento pessoal.",j:"CERTO. Art. 319."},
+ {t:"Crimes c/ Adm.",ce:false,s:"A corrupção passiva exige que a vantagem indevida seja efetivamente recebida.",j:"ERRADO. Basta solicitar (art. 317)."},
+ {t:"Crimes c/ patrimônio",ce:true,s:"O roubo seguido de morte (latrocínio) é crime hediondo.",j:"CERTO. Art. 157, §3º, II."},
+ {t:"Concurso",ce:false,s:"No concurso material de crimes, aplica-se só a pena do crime mais grave.",j:"ERRADO. No concurso MATERIAL as penas se SOMAM (art. 69)."},
+ {t:"Prescrição",ce:true,s:"Antes do trânsito em julgado, a prescrição regula-se pela pena máxima cominada ao crime.",j:"CERTO. Art. 109."},
+ {t:"Crimes c/ pessoa",ce:true,s:"A lesão corporal pode ser de natureza leve, grave ou gravíssima.",j:"CERTO. Art. 129."}
+],
+"Direito Processual Penal":[
+ {t:"Inquérito",ce:true,s:"O delegado de polícia não pode, por sua própria iniciativa, arquivar o inquérito.",j:"CERTO. Art. 17."},
+ {t:"Ação penal",ce:true,s:"Na ação penal pública condicionada, o MP depende de representação do ofendido ou requisição do Ministro da Justiça.",j:"CERTO."},
+ {t:"Prisão",ce:false,s:"A prisão preventiva tem prazo máximo de 30 dias, improrrogável.",j:"ERRADO. Não há prazo fixo; perdura enquanto presentes os requisitos, sob revisão."},
+ {t:"Prisão",ce:true,s:"São fundamentos da preventiva a garantia da ordem pública, da ordem econômica, a conveniência da instrução e a aplicação da lei penal.",j:"CERTO. Art. 312."},
+ {t:"Provas",ce:true,s:"A confissão do acusado é divisível e retratável.",j:"CERTO. Art. 200."},
+ {t:"Jurisdição",ce:true,s:"O Tribunal do Júri julga os crimes dolosos contra a vida.",j:"CERTO. Art. 5º, XXXVIII da CF."},
+ {t:"Recursos",ce:false,s:"O habeas corpus só é cabível após a condenação.",j:"ERRADO. Cabe a qualquer tempo, diante de ameaça ou coação à liberdade de locomoção."},
+ {t:"Competência",ce:false,s:"A competência por prerrogativa de função é fixada pelo local do crime.",j:"ERRADO. É fixada em razão do cargo/função."}
+],
+"Legislação Especial":[
+ {t:"Drogas 11.343",ce:true,s:"A natureza e a quantidade da droga são critérios para distinguir usuário de traficante.",j:"CERTO. Art. 28, §2º."},
+ {t:"Armas 10.826",ce:true,s:"É crime portar munição de uso permitido sem autorização, mesmo sem a arma.",j:"CERTO. Art. 14 abrange munição/acessório."},
+ {t:"Maria da Penha",ce:true,s:"A ação penal na lesão corporal da Lei Maria da Penha é pública incondicionada.",j:"CERTO. Súmula 542 do STJ."},
+ {t:"Tortura 9.455",ce:false,s:"A tortura só pode ser cometida por funcionário público.",j:"ERRADO. É crime comum (pode ser por qualquer pessoa)."},
+ {t:"ECA",ce:true,s:"As medidas socioeducativas incluem advertência, prestação de serviços à comunidade e internação.",j:"CERTO. Art. 112."},
+ {t:"Crime Organizado",ce:false,s:"A infiltração de agentes dispensa autorização judicial.",j:"ERRADO. Exige autorização judicial (Lei 12.850/13)."},
+ {t:"Lavagem 9.613",ce:false,s:"A lavagem de dinheiro exige que o crime antecedente seja apenas o tráfico de drogas.",j:"ERRADO. Após a Lei 12.683/12, qualquer infração penal pode ser antecedente."},
+ {t:"Terrorismo 13.260",ce:true,s:"A Lei 13.260/16 define e pune atos de terrorismo no Brasil.",j:"CERTO."},
+ {t:"Armas 10.826",ce:false,s:"Disparar arma de fogo em local habitado é conduta atípica se ninguém se ferir.",j:"ERRADO. O disparo já é crime (art. 15), independentemente de ferir alguém."},
+ {t:"Abuso 13.869",ce:true,s:"Os crimes de abuso de autoridade exigem finalidade específica de prejudicar, beneficiar ou agir por capricho.",j:"CERTO. Art. 1º, §1º."}
+],
+"Direitos Humanos":[
+ {t:"Convenções",ce:true,s:"A Convenção sobre os Direitos da Criança é o tratado de direitos humanos com maior adesão no mundo.",j:"CERTO."},
+ {t:"ONU",ce:true,s:"A ONU foi criada em 1945, após a Segunda Guerra Mundial.",j:"CERTO."},
+ {t:"Princípios",ce:false,s:"O princípio da vedação ao retrocesso permite suprimir direitos sociais já conquistados.",j:"ERRADO. Veda o retrocesso (a supressão)."},
+ {t:"Sistema",ce:true,s:"O Brasil reconhece a jurisdição da Corte Interamericana de Direitos Humanos.",j:"CERTO."},
+ {t:"Igualdade",ce:false,s:"As ações afirmativas (cotas) ferem o princípio da igualdade.",j:"ERRADO. Buscam a igualdade material."},
+ {t:"Grupos",ce:true,s:"A Convenção sobre os Direitos das Pessoas com Deficiência tem status de emenda constitucional no Brasil.",j:"CERTO. Rito do art. 5º, §3º."},
+ {t:"Tratados",ce:false,s:"Todo tratado internacional ingressa no Brasil com status de emenda constitucional.",j:"ERRADO. Só os de direitos humanos aprovados pelo rito especial."},
+ {t:"Dignidade",ce:true,s:"A dignidade da pessoa humana é princípio fundante do Estado Democrático de Direito.",j:"CERTO. Art. 1º, III da CF."}
+],
+"Ética no Serviço Público":[
+ {t:"Decreto 1.171",ce:true,s:"O servidor deve resolver situações procrastinatórias, principalmente diante de filas, evitando dano ao usuário.",j:"CERTO."},
+ {t:"Decreto 1.171",ce:false,s:"A função pública deve ser tratada como algo privado do servidor.",j:"ERRADO. Deve ser exercida como coisa pública, voltada ao bem comum."},
+ {t:"Comissão",ce:true,s:"Cada órgão da Administração Federal deve ter uma Comissão de Ética.",j:"CERTO."},
+ {t:"8.112",ce:true,s:"A posse deve ocorrer no prazo de 30 dias contados da nomeação.",j:"CERTO. Art. 13, §1º."},
+ {t:"8.112",ce:false,s:"A readaptação é o retorno à atividade do servidor aposentado por invalidez.",j:"ERRADO. Isso é a REVERSÃO. Readaptação = cargo compatível com limitação."},
+ {t:"8.112",ce:true,s:"São formas de provimento, entre outras, a nomeação, a promoção, a readaptação e a reintegração.",j:"CERTO. Art. 8º."},
+ {t:"Conduta",ce:false,s:"Aceitar presente de valor expressivo de quem tem interesse em decisão do servidor é conduta ética aceitável.",j:"ERRADO. Configura conflito de interesses."},
+ {t:"Transparência",ce:true,s:"A Lei de Acesso à Informação consagra a publicidade como regra e o sigilo como exceção.",j:"CERTO. Lei 12.527/11."}
+],
+"Informática":[
+ {t:"Segurança",ce:true,s:"Spyware é um programa que coleta informações do usuário sem o seu consentimento.",j:"CERTO."},
+ {t:"Segurança",ce:false,s:"Usar a mesma senha em todos os sites é boa prática de segurança.",j:"ERRADO. Aumenta o risco; use senhas distintas e fortes."},
+ {t:"Redes",ce:true,s:"A VPN cria um túnel criptografado para proteger a conexão do usuário.",j:"CERTO."},
+ {t:"Hardware",ce:false,s:"O sistema binário usa dez dígitos (0 a 9).",j:"ERRADO. Usa apenas 0 e 1."},
+ {t:"Office/Excel",ce:true,s:"A função =MÉDIA(A1:A10) calcula a média aritmética do intervalo.",j:"CERTO."},
+ {t:"Office/Excel",ce:false,s:"A função =SE serve apenas para somar valores.",j:"ERRADO. Faz teste lógico (condição)."},
+ {t:"Internet",ce:true,s:"O DNS traduz nomes de domínio em endereços IP.",j:"CERTO."},
+ {t:"Segurança",ce:true,s:"A criptografia assimétrica usa um par de chaves: pública e privada.",j:"CERTO."}
+],
+"Matemática / Raciocínio Lógico":[
+ {t:"Porcentagem",ce:true,s:"Descontos sucessivos de 10% e 20% equivalem a um desconto único de 28%.",j:"CERTO. 0,9×0,8=0,72 → 28%."},
+ {t:"Lógica",ce:true,s:"A negação de 'p e q' é 'não p ou não q' (De Morgan).",j:"CERTO."},
+ {t:"Juros",ce:true,s:"No juro simples, os juros incidem sempre sobre o capital inicial.",j:"CERTO."},
+ {t:"Juros",ce:false,s:"No juro composto, os juros não incidem sobre juros anteriores.",j:"ERRADO. Há 'juros sobre juros'."},
+ {t:"Conjuntos",ce:true,s:"Se A⊂B, então todo elemento de A é elemento de B.",j:"CERTO."},
+ {t:"Média",ce:true,s:"A mediana de 3, 5 e 9 é 5.",j:"CERTO. Valor central."},
+ {t:"Razão",ce:false,s:"A razão entre 2 e 8 é 4.",j:"ERRADO. 2/8 = 0,25."},
+ {t:"Lógica",ce:false,s:"'p ou q' é equivalente a 'se p, então q'.",j:"ERRADO. São proposições diferentes."}
+],
+"Física":[
+ {t:"Cinemática",ce:true,s:"A aceleração média é a variação da velocidade dividida pelo tempo.",j:"CERTO. a=Δv/Δt."},
+ {t:"Cinemática",ce:false,s:"72 km/h equivalem a 25 m/s.",j:"ERRADO. 72÷3,6 = 20 m/s."},
+ {t:"Dinâmica",ce:true,s:"A unidade de força no SI é o newton (N).",j:"CERTO."},
+ {t:"Energia",ce:true,s:"Trabalho é força vezes deslocamento na direção da força.",j:"CERTO. W=F·d."},
+ {t:"Trânsito",ce:true,s:"O tempo de reação do condutor aumenta a distância total de parada.",j:"CERTO. Parada = reação + frenagem."},
+ {t:"Grandezas",ce:false,s:"Aceleração é uma grandeza escalar.",j:"ERRADO. É vetorial."}
+],
+"Geopolítica e Atualidades":[
+ {t:"Brasil",ce:true,s:"O Brasil é o maior país da América do Sul em território e população.",j:"CERTO."},
+ {t:"Economia",ce:false,s:"O real é a moeda oficial de todos os países do Mercosul.",j:"ERRADO. Cada país tem sua moeda."},
+ {t:"Organismos",ce:true,s:"A OMS é a agência da ONU responsável pela saúde global.",j:"CERTO."},
+ {t:"Geografia",ce:true,s:"O Pantanal é uma das maiores áreas úmidas do planeta.",j:"CERTO."},
+ {t:"Fronteiras",ce:true,s:"A faixa de fronteira brasileira é estratégica no combate a crimes transnacionais.",j:"CERTO."},
+ {t:"Mundo",ce:true,s:"Conflitos no Oriente Médio costumam afetar o preço internacional do petróleo.",j:"CERTO."}
+],
+"Língua Espanhola":[
+ {t:"Falsos amigos",ce:false,s:"'Cena' em espanhol significa 'cena de filme'.",j:"ERRADO. Significa JANTAR. Cena de filme = 'escena'."},
+ {t:"Falsos amigos",ce:true,s:"'Salsa' pode significar 'molho' em espanhol.",j:"CERTO."},
+ {t:"Gramática",ce:true,s:"Em espanhol, o plural de 'luz' é 'luces'.",j:"CERTO."},
+ {t:"Verbos",ce:false,s:"O verbo 'ir' em espanhol é totalmente regular.",j:"ERRADO. É irregular (voy, vas, va...)."},
+ {t:"Números",ce:true,s:"'Mil' em espanhol equivale a 'mil' em português.",j:"CERTO."},
+ {t:"Falsos amigos",ce:false,s:"'Taza' em espanhol significa 'taxa'.",j:"ERRADO. 'Taza' é 'xícara'. Taxa = 'tasa'."}
+],
+"Redação":[
+ {t:"Estrutura",ce:true,s:"A tese deve aparecer já na introdução do texto dissertativo.",j:"CERTO."},
+ {t:"Coesão",ce:false,s:"Começar vários parágrafos com o mesmo conectivo é recomendado.",j:"ERRADO. Deve-se variar os conectivos."},
+ {t:"Argumentação",ce:true,s:"Relacionar o tema a leis, dados e exemplos concretos fortalece a argumentação.",j:"CERTO."},
+ {t:"Norma",ce:true,s:"Em provas de concurso, fugir ao tema pode zerar a redação.",j:"CERTO."},
+ {t:"Conclusão",ce:false,s:"A conclusão deve trazer um argumento totalmente novo, não citado antes.",j:"ERRADO. Deve retomar e fechar as ideias."},
+ {t:"Linguagem",ce:true,s:"Espera-se o uso da norma culta e da impessoalidade na redação dissertativa.",j:"CERTO."}
+]
+};
+for(const k in MORE){ SUBJECTS[k]=(SUBJECTS[k]||[]).concat(MORE[k]); }
+
+// ===== Reforço: matérias que entraram no curso (Proc. Penal e Matemática) =====
+const MORE2={
+"Direito Processual Penal":[
+ {t:"Inquérito",ce:true,s:"O inquérito policial é dispensável; a ação penal pode basear-se em outras peças de informação.",j:"CERTO."},
+ {t:"Inquérito",ce:false,s:"O indiciamento é ato privativo do Ministério Público.",j:"ERRADO. É ato privativo da autoridade policial (delegado)."},
+ {t:"Ação penal",ce:true,s:"Na ação penal privada vigora o princípio da oportunidade/conveniência do ofendido.",j:"CERTO."},
+ {t:"Ação penal",ce:false,s:"O princípio da obrigatoriedade aplica-se à ação penal privada.",j:"ERRADO. A obrigatoriedade é da ação pública; a privada rege-se pela oportunidade."},
+ {t:"Prisão",ce:true,s:"A prisão em flagrante é uma modalidade de prisão cautelar.",j:"CERTO."},
+ {t:"Prisão",ce:false,s:"A prisão preventiva pode ser decretada em qualquer crime, independentemente da pena.",j:"ERRADO. Em regra, crimes dolosos com pena máxima superior a 4 anos (art. 313), salvo hipóteses específicas."},
+ {t:"Provas",ce:true,s:"Vigora o princípio do livre convencimento motivado do juiz.",j:"CERTO. As decisões devem ser fundamentadas."},
+ {t:"Provas",ce:false,s:"A prova ilícita por derivação é sempre aproveitável no processo.",j:"ERRADO. Em regra é inadmissível (frutos da árvore envenenada)."},
+ {t:"Competência",ce:true,s:"A conexão e a continência são causas de modificação da competência.",j:"CERTO."},
+ {t:"Sujeitos",ce:true,s:"O Ministério Público é o titular da ação penal pública.",j:"CERTO. Art. 129, I da CF."},
+ {t:"Recursos",ce:false,s:"O recurso em sentido estrito é cabível contra a sentença condenatória de mérito.",j:"ERRADO. Contra a sentença cabe APELAÇÃO; o RESE é para decisões do art. 581."},
+ {t:"Citação",ce:true,s:"Réu citado por edital que não comparece nem constitui advogado enseja suspensão do processo e da prescrição.",j:"CERTO. Art. 366 (regra geral)."}
+],
+"Matemática / Raciocínio Lógico":[
+ {t:"Porcentagem",ce:true,s:"Um valor que aumenta 100% fica igual ao dobro do original.",j:"CERTO."},
+ {t:"Porcentagem",ce:false,s:"Aumentar 50% e depois diminuir 50% retorna ao valor original.",j:"ERRADO. Ex.: 100 → 150 → 75."},
+ {t:"Lógica",ce:true,s:"Se 'todo A é B' é verdadeira, então 'algum A é B' também é verdadeira.",j:"CERTO."},
+ {t:"Lógica",ce:false,s:"A bicondicional 'p se e somente se q' é verdadeira quando p e q têm valores lógicos diferentes.",j:"ERRADO. É verdadeira quando têm o MESMO valor."},
+ {t:"Lógica",ce:true,s:"A negação de 'algum aluno passou' é 'nenhum aluno passou'.",j:"CERTO."},
+ {t:"Sequência",ce:true,s:"Numa PA de razão 3 começando em 2, o terceiro termo é 8.",j:"CERTO. 2, 5, 8."},
+ {t:"Probabilidade",ce:false,s:"Ao lançar um dado comum, a probabilidade de sair número par é 1/3.",j:"ERRADO. 3 pares em 6 faces → 1/2."},
+ {t:"Combinatória",ce:true,s:"Com 3 camisas e 2 calças há 6 combinações possíveis.",j:"CERTO. 3×2=6 (princípio multiplicativo)."},
+ {t:"Equação",ce:true,s:"A solução de x/2 = 10 é x = 20.",j:"CERTO."},
+ {t:"Porcentagem",ce:true,s:"Se um produto de R$200 subiu para R$250, o aumento foi de 25%.",j:"CERTO. 50/200 = 25%."},
+ {t:"Proporção",ce:false,s:"Se 3 máquinas produzem 300 peças/h, então 6 máquinas produzem as mesmas 300 peças/h.",j:"ERRADO. O dobro de máquinas → 600 peças/h."},
+ {t:"Lógica",ce:true,s:"Uma proposição e a sua negação não podem ser ambas verdadeiras ao mesmo tempo.",j:"CERTO. Princípio da não contradição."}
+]
+};
+for(const k in MORE2){ SUBJECTS[k]=(SUBJECTS[k]||[]).concat(MORE2[k]); }
+
+// ===== Mais questões para TODAS as matérias =====
+const MORE3={
+"Legislação de Trânsito":[
+ {t:"Velocidade",ce:false,s:"Na ausência de sinalização, a velocidade máxima em via local urbana é de 40 km/h.",j:"ERRADO. Em via local é 30 km/h."},
+ {t:"Penalidades",ce:true,s:"Dirigir sob influência de álcool é infração gravíssima, além de poder configurar crime de trânsito.",j:"CERTO."},
+ {t:"CNH",ce:false,s:"A CNH na categoria B autoriza a conduzir motocicletas.",j:"ERRADO. Motocicleta exige categoria A."},
+ {t:"Habilitação",ce:true,s:"O condutor em permissão para dirigir (PPD) não pode ter cometido infração grave ou gravíssima para obter a CNH definitiva.",j:"CERTO."},
+ {t:"Equipamentos",ce:true,s:"O uso do cinto de segurança é obrigatório para todos os ocupantes do veículo.",j:"CERTO."},
+ {t:"Pedestre",ce:true,s:"O pedestre tem prioridade de passagem na faixa a ele destinada.",j:"CERTO."},
+ {t:"Infrações",ce:false,s:"Avançar o sinal vermelho é classificado como infração média.",j:"ERRADO. É infração gravíssima."}
+],
+"Direito Constitucional":[
+ {t:"Direitos",ce:true,s:"A casa é asilo inviolável; ninguém pode nela penetrar sem consentimento, salvo flagrante, desastre, socorro ou, de dia, por ordem judicial.",j:"CERTO. Art. 5º, XI."},
+ {t:"Remédios",ce:false,s:"O habeas corpus protege o direito líquido e certo não amparado por habeas data.",j:"ERRADO. Isso é mandado de segurança; o HC protege a liberdade de locomoção."},
+ {t:"Organização",ce:true,s:"A segurança pública é dever do Estado, direito e responsabilidade de todos.",j:"CERTO. Art. 144."},
+ {t:"Servidores",ce:false,s:"A investidura em cargo público efetivo independe de concurso público.",j:"ERRADO. Depende de aprovação em concurso (art. 37, II)."},
+ {t:"Nacionalidade",ce:true,s:"São brasileiros natos os nascidos no Brasil, ainda que de pais estrangeiros, desde que estes não estejam a serviço de seu país.",j:"CERTO."},
+ {t:"Poderes",ce:true,s:"São Poderes da União, independentes e harmônicos entre si, o Legislativo, o Executivo e o Judiciário.",j:"CERTO. Art. 2º."}
+],
+"Direito Administrativo":[
+ {t:"Atos",ce:true,s:"A revogação do ato administrativo decorre de juízo de conveniência e oportunidade e produz efeitos ex nunc.",j:"CERTO."},
+ {t:"Poderes",ce:false,s:"O poder de polícia administrativa é sempre exercido de forma repressiva, nunca preventiva.",j:"ERRADO. Pode ser preventivo e repressivo."},
+ {t:"Agentes",ce:true,s:"O servidor estável só perde o cargo por sentença judicial transitada em julgado, processo administrativo com ampla defesa ou avaliação periódica de desempenho.",j:"CERTO."},
+ {t:"Serviços",ce:false,s:"A concessão de serviço público pode ser feita sem licitação.",j:"ERRADO. Exige licitação (regra geral, concorrência)."},
+ {t:"Responsabilidade",ce:true,s:"A responsabilidade civil do Estado por atos de seus agentes é, em regra, objetiva.",j:"CERTO."},
+ {t:"Licitação",ce:true,s:"O pregão é a modalidade indicada para aquisição de bens e serviços comuns.",j:"CERTO."}
+],
+"Língua Portuguesa":[
+ {t:"Crase",ce:false,s:"Em 'Refiro-me à pessoas honestas', o uso da crase está correto.",j:"ERRADO. Antes de palavra no plural sem artigo definido plural não há crase: 'a pessoas'."},
+ {t:"Concordância",ce:true,s:"Em 'Fazem dois anos que ele partiu', o correto é 'Faz dois anos', pois o verbo é impessoal.",j:"CERTO."},
+ {t:"Pronome",ce:false,s:"Em 'Vou contigo ao evento', a forma pronominal está incorreta.",j:"ERRADO. 'Contigo' está correto."},
+ {t:"Acentuação",ce:true,s:"As palavras 'saída' e 'país' recebem acento por serem hiatos com i/u tônicos.",j:"CERTO."},
+ {t:"Regência",ce:true,s:"O verbo 'assistir' no sentido de ver exige a preposição 'a' (assistir ao filme).",j:"CERTO."},
+ {t:"Pontuação",ce:false,s:"É correto separar o sujeito do predicado por vírgula quando o sujeito é longo.",j:"ERRADO. Nunca se separa sujeito do predicado por vírgula."}
+],
+"Direito Penal":[
+ {t:"Aplicação",ce:true,s:"A lei penal mais benéfica retroage para alcançar fatos anteriores à sua vigência.",j:"CERTO. Art. 5º, XL, CF."},
+ {t:"Crime",ce:false,s:"No crime culposo, o agente quer o resultado ou assume o risco de produzi-lo.",j:"ERRADO. Isso é dolo; na culpa há imprudência, negligência ou imperícia."},
+ {t:"Ilicitude",ce:true,s:"A legítima defesa exclui a ilicitude do fato.",j:"CERTO. Art. 23, II."},
+ {t:"Concurso",ce:false,s:"No concurso material, aplica-se a pena do crime mais grave aumentada.",j:"ERRADO. No concurso material as penas são SOMADAS (cúmulo material)."},
+ {t:"Tentativa",ce:true,s:"Na tentativa, a pena é a do crime consumado reduzida de um a dois terços.",j:"CERTO."},
+ {t:"Funcionário",ce:true,s:"Para fins penais, considera-se funcionário público quem exerce cargo, emprego ou função pública, ainda que transitoriamente.",j:"CERTO. Art. 327."}
+],
+"Legislação Especial":[
+ {t:"Drogas",ce:true,s:"Ao usuário de drogas (art. 28 da Lei 11.343) não se aplica pena privativa de liberdade.",j:"CERTO."},
+ {t:"Armas",ce:false,s:"Porte e posse de arma de fogo são conceitos idênticos no Estatuto do Desarmamento.",j:"ERRADO. Posse é manter em casa/trabalho; porte é trazer consigo fora desses locais."},
+ {t:"Maria da Penha",ce:true,s:"A Lei Maria da Penha abrange violência física, psicológica, sexual, patrimonial e moral.",j:"CERTO."},
+ {t:"Tortura",ce:true,s:"O crime de tortura é inafiançável e insuscetível de graça ou anistia.",j:"CERTO."},
+ {t:"Org. Criminosa",ce:false,s:"Considera-se organização criminosa a associação de 2 pessoas para cometer crimes.",j:"ERRADO. São 4 ou mais pessoas (Lei 12.850)."}
+],
+"Direitos Humanos":[
+ {t:"Características",ce:true,s:"Os direitos humanos são universais, indivisíveis e interdependentes.",j:"CERTO."},
+ {t:"DUDH",ce:false,s:"A Declaração Universal dos Direitos Humanos de 1948 é um tratado internacional juridicamente vinculante por si só.",j:"ERRADO. É uma declaração/resolução, não um tratado vinculante por si só."},
+ {t:"Gerações",ce:true,s:"Os direitos de 1ª geração correspondem às liberdades civis e políticas.",j:"CERTO."},
+ {t:"Tratados",ce:true,s:"Tratados de direitos humanos aprovados em dois turnos, por 3/5, em cada Casa, equivalem a emendas constitucionais.",j:"CERTO. Art. 5º, §3º."},
+ {t:"Sistema",ce:false,s:"A Corte Interamericana de Direitos Humanos tem sede em Washington.",j:"ERRADO. Fica em San José, Costa Rica."}
+],
+"Ética no Serviço Público":[
+ {t:"Decreto 1.171",ce:true,s:"O servidor deve resolver situações cada vez mais complexas tendo como norte o critério moral, distinguindo o honesto do desonesto.",j:"CERTO."},
+ {t:"Comissão",ce:false,s:"A Comissão de Ética pode aplicar a penalidade de suspensão ao servidor.",j:"ERRADO. Só pode aplicar censura."},
+ {t:"8.112",ce:true,s:"A penalidade de advertência será sempre aplicada por escrito.",j:"CERTO."},
+ {t:"Deveres",ce:true,s:"A cortesia e a urbanidade no trato com o público são deveres do servidor.",j:"CERTO."},
+ {t:"8.112",ce:false,s:"O estágio probatório do servidor efetivo tem duração de 2 anos.",j:"ERRADO. São 3 anos (36 meses)."}
+],
+"Informática":[
+ {t:"Hardware",ce:true,s:"A memória RAM é volátil: perde seu conteúdo quando o computador é desligado.",j:"CERTO."},
+ {t:"Redes",ce:false,s:"O endereço MAC é um endereço lógico atribuído pelo protocolo IP.",j:"ERRADO. MAC é físico (da placa de rede); o IP é o endereço lógico."},
+ {t:"Segurança",ce:true,s:"Phishing é uma técnica que tenta enganar o usuário para obter dados sigilosos.",j:"CERTO."},
+ {t:"Segurança",ce:false,s:"Um firewall é um software antivírus que remove vírus do computador.",j:"ERRADO. Firewall controla o tráfego de rede; não é antivírus."},
+ {t:"Excel",ce:true,s:"No Excel, toda fórmula começa com o sinal de igual (=).",j:"CERTO."},
+ {t:"Internet",ce:true,s:"O protocolo HTTPS realiza a transferência de dados de forma criptografada.",j:"CERTO."}
+],
+"Física":[
+ {t:"Cinemática",ce:true,s:"Para converter 72 km/h em m/s, divide-se por 3,6, resultando em 20 m/s.",j:"CERTO."},
+ {t:"Dinâmica",ce:false,s:"Segundo a 2ª Lei de Newton, força é igual a massa dividida pela aceleração.",j:"ERRADO. F = m × a (massa VEZES aceleração)."},
+ {t:"Energia",ce:true,s:"A energia cinética é proporcional ao quadrado da velocidade.",j:"CERTO. Ec = m·v²/2."},
+ {t:"Movimento",ce:false,s:"No movimento retilíneo uniforme (MRU) a aceleração é constante e diferente de zero.",j:"ERRADO. No MRU a aceleração é nula."},
+ {t:"Forças",ce:true,s:"A força de atrito sempre se opõe à tendência de movimento.",j:"CERTO."}
+],
+"Geopolítica e Atualidades":[
+ {t:"Brasil",ce:true,s:"O Brasil faz fronteira com dez países da América do Sul.",j:"CERTO. Todos, exceto Chile e Equador."},
+ {t:"Organismos",ce:false,s:"O Brasil é membro permanente do Conselho de Segurança da ONU.",j:"ERRADO. Não é permanente; pleiteia uma vaga."},
+ {t:"Energia",ce:true,s:"A matriz elétrica brasileira é predominantemente renovável, com destaque para as hidrelétricas.",j:"CERTO."},
+ {t:"Blocos",ce:false,s:"O Mercosul é uma aliança de caráter militar.",j:"ERRADO. É um bloco econômico."},
+ {t:"Regiões",ce:true,s:"O Brasil é dividido em cinco regiões geográficas.",j:"CERTO."}
+],
+"Língua Espanhola":[
+ {t:"Falsos amigos",ce:false,s:"A palavra espanhola 'embarazada' significa 'constrangida' em português.",j:"ERRADO. Significa 'grávida'."},
+ {t:"Vocabulário",ce:true,s:"'Carretera' em espanhol significa 'estrada/rodovia'.",j:"CERTO."},
+ {t:"Falsos amigos",ce:false,s:"'Oficina' em espanhol significa 'oficina mecânica' em português.",j:"ERRADO. Significa 'escritório'."},
+ {t:"Tratamento",ce:true,s:"'Usted' é a forma de tratamento formal em espanhol.",j:"CERTO."},
+ {t:"Vocabulário",ce:false,s:"'Apellido' em espanhol significa 'apelido' em português.",j:"ERRADO. Significa 'sobrenome'."}
+]
+};
+for(const k in MORE3){ SUBJECTS[k]=(SUBJECTS[k]||[]).concat(MORE3[k]); }
+
+// ===== Resumos para a leitura obrigatória (fixação antes de responder) =====
+const RESUMO={
+"⭐ Geral — todas por peso":"<h4>Como a Cebraspe cobra</h4><ul><li>Itens de <b>Certo/Errado</b>: um erro <b>anula</b> um acerto — na dúvida real, pule.</li><li>Atenção a palavras absolutas: <b>sempre, nunca, somente, exclusivamente</b> — costumam deixar o item errado.</li><li>Troca de conceitos é a pegadinha nº1 (ex.: objetiva × subjetiva; porte × posse).</li></ul><h4>Foco do dia</h4><ul><li>Reforce as de maior peso: <b>Trânsito, Português, Penal, Constitucional, Administrativo, Leg. Especial</b>.</li><li>Leia o item todo antes de julgar; cuidado com negativas.</li></ul>",
+"Legislação de Trânsito":"<h4>CTB — pontos-chave</h4><ul><li>Rege vias de <b>qualquer natureza</b>; responsabilidade dos órgãos é <b>objetiva</b>; prioridade é a <b>vida</b>.</li><li>Vias urbanas: rápida 80 · arterial 60 · coletora 40 · <b>local 30</b>.</li><li>SNT: <b>CONTRAN</b> normatiza (resoluções) · <b>SENATRAN</b> executa · <b>JARI</b> julga recursos (1ª inst.).</li><li>Circulação pela <b>direita</b>, ultrapassagem pela <b>esquerda</b>; maior porte responde pela segurança do menor.</li><li>Emergência tem prioridade; buzina só <b>toque breve</b>; luz baixa à noite/túnel.</li></ul>",
+"Direito Constitucional":"<h4>CF/88 — pontos-chave</h4><ul><li>Fundamentos (art.1º): SO-CI-DI-VA-PLU. Objetivos (art.3º) ≠ princípios das relações internacionais (art.4º).</li><li>Racismo: <b>inafiançável e imprescritível</b>. Direitos sociais a partir do <b>art.6º</b>.</li><li>Voto 16-18 anos: <b>facultativo</b>. Presidente: privativo de <b>nato</b>.</li><li>Segurança pública (art.144): <b>PRF = rodovias federais</b>; PF apura crimes federais.</li><li>Cláusulas pétreas (art.60, §4º): forma federativa, voto, separação de poderes, direitos e garantias individuais.</li></ul>",
+"Direito Administrativo":"<h4>Pontos-chave</h4><ul><li>Princípios: <b>LIMPE</b>. Administração só faz o que a lei <b>autoriza</b>.</li><li>Ato: requisitos COM-FI-FO-MO-OB; atributos (presunção, imperatividade, autoexecutoriedade, tipicidade).</li><li><b>Revogação</b> (mérito, ex nunc) × <b>anulação</b> (ilegalidade, ex tunc).</li><li>Responsabilidade do Estado: <b>objetiva</b> (risco administrativo); regresso se dolo/culpa do agente.</li><li>Improbidade (pós-Lei 14.230/21): exige <b>dolo</b>. Licitações (14.133/21): pregão, concorrência, concurso, leilão, diálogo competitivo.</li></ul>",
+"Língua Portuguesa":"<h4>Pontos-chave</h4><ul><li>Crase: não antes de verbo, masculino ou pronome; sim em horas definidas e 'à moda de'.</li><li>'Haver'/'fazer' (tempo) são <b>impessoais</b> → singular.</li><li>Regência: assistir (ver) = ao; chegar = a; preferir X a Y.</li><li><b>Mal</b> (advérbio) × <b>mau</b> (adjetivo); <b>por que/por quê/porque/porquê</b>.</li><li>Não se separa sujeito do predicado por vírgula; vírgula isola aposto e vocativo.</li></ul>",
+"Direito Penal":"<h4>Parte geral — pontos-chave</h4><ul><li>Lei penal retroage só para <b>beneficiar</b>; tempo do crime = <b>atividade</b>; lugar = <b>ubiquidade</b>.</li><li>Tentativa: pena reduzida de 1 a 2/3. Regra é o <b>dolo</b> (culpa só se prevista).</li><li>Excludentes de ilicitude (art.23): estado de necessidade, legítima defesa, estrito cumprimento do dever, exercício regular de direito.</li><li>Funcionário público (art.327) amplo. Peculato/concussão/corrupção passiva = próprios do funcionário.</li></ul>",
+"Direito Processual Penal":"<h4>Pontos-chave</h4><ul><li><b>Inquérito</b>: administrativo, inquisitivo, <b>dispensável</b>, sigiloso; preside o <b>delegado</b>; indiciamento é ato do delegado.</li><li><b>Ação penal</b>: pública (MP, denúncia) × privada (ofendido, queixa). Pública = obrigatoriedade; privada = oportunidade.</li><li><b>Prisões cautelares</b>: flagrante, preventiva, temporária. Flagrante: qualquer do povo <b>pode</b>, autoridade <b>deve</b>; auto ao juiz em <b>24h</b> + audiência de custódia.</li><li><b>Preventiva</b> (art.312): ordem pública/econômica, instrução, aplicação da lei; <b>não</b> de ofício.</li><li><b>Provas</b>: livre convencimento motivado; corpo de delito se há vestígios; <b>ilícitas inadmissíveis</b> (e as derivadas).</li><li><b>Competência</b>: regra o lugar da consumação (art.70); <b>Júri</b> para crimes dolosos contra a vida.</li><li>Recursos: <b>apelação</b> (sentença), <b>RESE</b> (art.581), <b>HC</b> (liberdade de locomoção, a qualquer tempo).</li></ul>",
+"Legislação Especial":"<h4>Pontos-chave</h4><ul><li><b>Drogas (11.343)</b>: usuário (art.28) <b>sem prisão</b>; tráfico equiparado a hediondo.</li><li><b>Armas (10.826)</b>: <b>posse</b> (em casa/trabalho) × <b>porte</b> (fora); disparo em via pública é crime.</li><li><b>Maria da Penha</b>: violência física, psicológica, sexual, patrimonial e moral; lesão = ação pública incondicionada.</li><li><b>Tortura</b> e <b>racismo/injúria racial</b>: inafiançáveis/imprescritíveis (injúria racial pós-14.532/22).</li><li>Organização criminosa (12.850): 4+ pessoas, pena máx &gt; 4 anos.</li></ul>",
+"Direitos Humanos":"<h4>Pontos-chave</h4><ul><li>DUDH (1948): declaração, <b>não</b> é tratado vinculante por si só.</li><li>Características: universais, indivisíveis, <b>inalienáveis/irrenunciáveis</b>, imprescritíveis.</li><li>Gerações: 1ª civis/políticos · 2ª sociais · 3ª fraternidade.</li><li>Tratados de DH por rito do <b>art.5º, §3º</b> = emenda. Corte Interamericana em <b>San José (Costa Rica)</b>.</li></ul>",
+"Ética no Serviço Público":"<h4>Pontos-chave</h4><ul><li>Decreto 1.171/94: avaliar entre <b>legal/ilegal</b> e <b>honesto/desonesto</b>; urbanidade é dever.</li><li>Comissão de Ética só aplica <b>censura</b>.</li><li>Lei 8.112: estágio probatório <b>3 anos</b>; advertência sempre por escrito; suspensão até 90 dias.</li><li>Transparência (12.527/11): publicidade é regra, sigilo exceção.</li></ul>",
+"Informática":"<h4>Pontos-chave</h4><ul><li>RAM = <b>volátil</b>; armazenamento (HD/SSD) permanente.</li><li>IP (lógico) × MAC (físico); DNS traduz domínio em IP; HTTPS = criptografado.</li><li>Segurança: phishing (golpe), ransomware (sequestra arquivos), firewall (protege rede), 2FA.</li><li>Excel: ':' = intervalo; '$' = referência absoluta; fórmula começa com '='.</li></ul>",
+"Matemática / Raciocínio Lógico":"<h4>Lógica — pontos-chave</h4><ul><li><b>Conjunção</b> (e): V só se ambas V. <b>Disjunção</b> (ou): F só se ambas F.</li><li><b>Condicional</b> (se→então): F só em V→F. <b>Bicondicional</b> (↔): V se mesmo valor.</li><li>Negações: ~(todo)=<b>algum não</b>; ~(algum)=<b>nenhum</b>; De Morgan ~(p∧q)=~p∨~q; ~(p→q)=<b>p∧~q</b>.</li><li>Contrapositiva: p→q ≡ ~q→~p.</li></ul><h4>Matemática</h4><ul><li>Porcentagem: descontos/aumentos sucessivos <b>multiplicam fatores</b> (±10% não volta ao início).</li><li>Proporção: <b>direta</b> (↑↑) e <b>inversa</b> (↑↓); regra de três.</li><li>Juros: <b>simples</b> (sobre o capital) × <b>composto</b> (juros sobre juros).</li><li>Conjuntos: 2ⁿ subconjuntos; probabilidade = favoráveis/possíveis.</li></ul>",
+"Física":"<h4>Pontos-chave</h4><ul><li>Converter km/h→m/s: <b>÷3,6</b> (72→20; 90→25; 108→30).</li><li>MRU: v constante, a=0. MRUV: a constante.</li><li>Newton: F=m·a; ação e reação; peso = m·g.</li><li>Energia cinética ∝ <b>v²</b> (dobrar v → quadruplica); atrito se opõe ao movimento.</li></ul>",
+"Geopolítica e Atualidades":"<h4>Pontos-chave</h4><ul><li>Brasil: 26 estados + DF, 5 regiões; não faz fronteira com <b>Chile e Equador</b>.</li><li>Mercosul (econômico) × OTAN (militar); Brasil <b>não</b> é permanente no Conselho de Segurança da ONU.</li><li>Matriz elétrica brasileira é <b>renovável</b> (hidrelétricas).</li><li>BRICS ampliado; agronegócio forte nas exportações.</li></ul>",
+"Língua Espanhola":"<h4>Falsos amigos / pontos-chave</h4><ul><li><b>Embarazada</b>=grávida · <b>oficina</b>=escritório · <b>exquisito</b>=delicioso · <b>apellido</b>=sobrenome · <b>largo</b>=comprido.</li><li>'Usted' = formal; 'tú' = informal. Negação = <b>'no'</b> (sem til).</li><li>Artigos: el/los (masc.), la/las (fem.). 'Carretera' = rodovia.</li></ul>",
+"Redação":"<h4>Pontos-chave</h4><ul><li>Dissertativo-argumentativo: <b>introdução (tese)</b> + 2 desenvolvimentos (argumentos/repertório) + <b>conclusão/proposta</b>.</li><li>Impessoalidade (3ª pessoa), norma culta, clareza e concisão; variar conectivos.</li><li><b>Fugir ao tema zera</b>; conclusão não traz argumento novo.</li></ul>"
+};
+
+// ===== Estado da leitura obrigatória =====
+let readMin=3; const readDone={}; let readTimer=null, readLeft=0;
+function clearReadTimer(){ if(readTimer){clearInterval(readTimer);readTimer=null;} }
+function needsReading(){ return readMin>0 && !readDone[matSel.value]; }
+function showReading(){
+  stopTimer(); clearReadTimer();
+  $('timer').textContent='📖';
+  const resumo = RESUMO[matSel.value] || RESUMO[GERAL] || '<p>Leia com atenção e foque nos pontos-chave.</p>';
+  readLeft = readMin*60; const totalSec=readLeft;
+  $('pos').textContent='📖 Leitura'; $('score').textContent='';
+  stage.innerHTML='<div class="card"><div class="tagrow"><span class="chip">'+matSel.value+'</span><span class="chip ghost">leitura obrigatória</span></div>'
+    +'<div class="side-label">📖 Fixe antes de responder</div>'
+    +'<div class="resumo">'+resumo+'</div>'
+    +'<button class="next" id="btnStart" disabled>⏳ Aguarde <span id="rc"></span></button></div>';
+  $('foot').innerHTML='Leia com calma — isso fixa a matéria. O botão libera ao fim do tempo mínimo.';
+  const bt=$('btnStart');
+  const upd=()=>{ const m=Math.floor(readLeft/60),s=readLeft%60; const rc=$('rc'); if(rc)rc.textContent=m+':'+String(s).padStart(2,'0'); $('prog').style.width=Math.round((totalSec-readLeft)/totalSec*100)+'%'; };
+  upd();
+  readTimer=setInterval(()=>{ readLeft--; if(readLeft<=0){ clearReadTimer(); readDone[matSel.value]=true; $('prog').style.width='100%'; bt.disabled=false; bt.textContent='✅ Li tudo — começar'; bt.onclick=beginQuiz; } else upd(); },1000);
+}
+
+// ===== Modo Geral: sorteio ponderado pela importância da matéria =====
+const GERAL="⭐ Geral — todas por peso";
+const WEIGHTS={
+ "Legislação de Trânsito":5,"Língua Portuguesa":5,"Direito Penal":4,"Direito Constitucional":4,
+ "Direito Administrativo":4,"Legislação Especial":4,"Direito Processual Penal":3,"Direitos Humanos":3,
+ "Informática":3,"Matemática / Raciocínio Lógico":3,"Ética no Serviço Público":2,"Física":2,
+ "Geopolítica e Atualidades":2,"Língua Espanhola":1,"Redação":1
+};
+function subjGeral(){ return Object.keys(SUBJECTS).filter(k=>k!=='🎯 Simulado estilo prova PRF'); }
+function geralFlat(){ let a=[]; subjGeral().forEach(s=>SUBJECTS[s].forEach((c,idx)=>a.push({...c,idx:s+'#'+idx,_sub:s}))); return a; }
+function weightedDeck(n){
+  const subs=subjGeral();
+  const pools={}; subs.forEach(s=>pools[s]=shuffleArr(SUBJECTS[s].map((c,idx)=>({...c,idx:s+'#'+idx,_sub:s}))));
+  const cap=Math.min(n, geralFlat().length); const out=[];
+  while(out.length<cap){
+    const av=subs.filter(s=>pools[s].length); if(!av.length)break;
+    const tw=av.reduce((t,s)=>t+(WEIGHTS[s]||1),0); let r=Math.random()*tw, ps=av[av.length-1];
+    for(const s of av){ r-=(WEIGHTS[s]||1); if(r<=0){ps=s;break;} }
+    out.push(pools[ps].pop());
+  }
+  return out;
+}
+
 const matSel=document.getElementById('mat');
 const sizeSel=document.getElementById('size');
+const gOpt=document.createElement('option');gOpt.value=GERAL;gOpt.textContent='⭐ Geral — todas por peso ('+geralFlat().length+')';matSel.appendChild(gOpt);
 Object.keys(SUBJECTS).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k+' ('+SUBJECTS[k].length+')';matSel.appendChild(o);});
+matSel.value=GERAL;
 
 let MODE='treino'; // 'treino' | 'simulado'
 let pool=[], deck=[], i=0, ok=0, err=0, seen, answered=null;
@@ -516,19 +885,31 @@ function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}}
 function tick(){$('timer').textContent='⏱️ '+fmt(Date.now()-t0);}
 
 function newRound(){
-  stopTimer();
-  pool=(SUBJECTS[matSel.value]||[]).map((c,idx)=>({...c,idx}));
+  stopTimer(); clearReadTimer();
   const s=sizeSel.value;
-  let arr=shuffleArr(pool.slice());
-  deck = s==='all' ? arr : arr.slice(0, Math.min(Number(s),arr.length));
+  let arr;
+  if(matSel.value===GERAL){
+    pool=geralFlat();
+    arr=weightedDeck(s==='all'?pool.length:Number(s));
+  }else{
+    pool=(SUBJECTS[matSel.value]||[]).map((c,idx)=>({...c,idx}));
+    arr=shuffleArr(pool.slice());
+    if(s!=='all') arr=arr.slice(0, Math.min(Number(s),arr.length));
+  }
+  deck=arr;
   i=0;ok=0;err=0;answered=null;seen=new Set();finished=false;
+  if(needsReading()){ showReading(); return; }
+  beginQuiz();
+}
+function beginQuiz(){
+  stopTimer(); clearReadTimer();
   if(MODE==='simulado'){
     resp=new Array(deck.length).fill(null);
     t0=Date.now();$('timer').textContent='⏱️ 0:00';timerId=setInterval(tick,1000);
     $('foot').innerHTML='⏱️ <b>Simulado</b>: responda sem ver a correção · no fim, nota no critério Cebraspe (<b>acertos − erros</b>) · deixar em branco <b>não</b> desconta';
   }else{
     $('timer').textContent='';
-    $('foot').innerHTML='Julgue a afirmação: <b>V</b> = Verdadeiro, <b>F</b> = Falso · correção <b>na hora</b> · banco total de <b>'+pool.length+'</b> itens — cada rodada sorteia novas';
+    $('foot').innerHTML=(matSel.value===GERAL?'⭐ <b>Geral</b>: cada rodada sorteia de TODAS as matérias, com mais peso para as importantes · ':'')+'Julgue: <b>V</b>=Verdadeiro, <b>F</b>=Falso · correção <b>na hora</b> · banco de <b>'+pool.length+'</b> itens — cada rodada sorteia novas';
   }
   render();
 }
@@ -574,7 +955,7 @@ function render(){
     $('pos').textContent=(i+1)+'/'+total;$('score').textContent=i+' resp.';
     const c=deck[i];
     stage.innerHTML='<div class="card">'+
-      '<div class="tagrow"><span class="chip">'+matSel.value+'</span><span class="chip ghost">'+c.t+'</span></div>'+
+      '<div class="tagrow"><span class="chip">'+(c._sub||matSel.value)+'</span><span class="chip ghost">'+c.t+'</span></div>'+
       '<div class="side-label">Item '+(i+1)+' de '+total+'</div><div class="q">'+c.s+'</div>'+
       '<div class="btns"><button class="ce-certo" onclick="window.__ans(true)">✓ CERTO</button><button class="ce-errado" onclick="window.__ans(false)">✗ ERRADO</button></div>'+
       '<div class="nav"><button onclick="window.__prev()">← Voltar</button><button onclick="window.__skip()">Pular (branco)</button><button onclick="window.__finish()">Encerrar</button></div>'+
@@ -589,7 +970,7 @@ function render(){
   const show=answered!==null;
   const correct=show&&answered===c.ce;
   stage.innerHTML='<div class="card">'+
-    '<div class="tagrow"><span class="chip">'+matSel.value+'</span><span class="chip ghost">'+c.t+'</span></div>'+
+    '<div class="tagrow"><span class="chip">'+(c._sub||matSel.value)+'</span><span class="chip ghost">'+c.t+'</span></div>'+
     '<div class="side-label">Julgue o item</div><div class="q">'+c.s+'</div>'+
     (show
       ? '<div class="answer"><div class="verdict '+(correct?'good':'bad')+'">'+(correct?'✓ Você acertou!':'✗ Você errou')+'</div>'+
@@ -607,6 +988,8 @@ $('mTreino').onclick=()=>setMode('treino');
 $('mSim').onclick=()=>setMode('simulado');
 matSel.addEventListener('change',newRound);
 sizeSel.addEventListener('change',newRound);
+const leituraSel=$('leitura');
+if(leituraSel){ leituraSel.addEventListener('change',()=>{ readMin=Number(leituraSel.value)||0; for(const k in readDone)delete readDone[k]; newRound(); }); readMin=Number(leituraSel.value)||0; }
 $('shuffle').addEventListener('click',newRound);
 document.addEventListener('keydown',e=>{
   if(MODE==='simulado'){
