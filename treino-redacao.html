@@ -34,25 +34,44 @@ h1{font-family:var(--f-head);font-size:clamp(1.4rem,5vw,2rem);margin:0;letter-sp
 .btn-p{background:var(--accent);color:#fff}
 .btn-s{background:var(--surface-2);color:var(--fg);border:1px solid var(--line)}
 .btn:disabled{opacity:.5;cursor:default}
-textarea{width:100%;min-height:300px;resize:vertical;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);
+textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);
   font-family:var(--f-body);font-size:1rem;line-height:1.7;padding:14px 16px;margin-top:10px}
 textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
 .count{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .count b{color:var(--fg)}
 .hint{font-size:.84rem;color:var(--muted);margin-top:4px}
 .result{margin-top:4px}
-.result h3{font-family:var(--f-head);margin:16px 0 6px;font-size:1.12rem}
+.result h3{font-family:var(--f-head);margin:16px 0 6px;font-size:1.08rem}
 .result h3:first-child{margin-top:0}
 .result ul{margin:6px 0;padding-left:20px}
 .result li{margin:4px 0}
 .result p{margin:6px 0}
 .result strong{color:var(--accent-ink)}
-.score-big{font-family:var(--f-head);font-weight:800;font-size:1.6rem;color:var(--accent)}
+.result code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:.92em}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 .warn{background:color-mix(in srgb,var(--amber) 16%,transparent);border-radius:12px;padding:12px 14px;font-size:.92rem}
 .foot{text-align:center;color:var(--muted);font-size:.82rem}
 .foot b{color:var(--fg)}
+/* ---- blocos ---- */
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.step-chip{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 12px}
+.dot{width:16px;height:16px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:.64rem;color:var(--muted)}
+.step-chip.done{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
+.step-chip.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.progresso{font-size:.84rem;color:var(--muted);margin-top:10px}
+.progresso b{color:var(--fg)}
+.block{border-left:4px solid var(--line)}
+.block.done{border-left-color:var(--green)}
+.bhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bnum{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-head);font-weight:800;font-size:.9rem;flex:0 0 auto}
+.btitle{font-family:var(--f-head);font-weight:700;font-size:1.1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:3px 9px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
+.badge.ajustar{color:#8a5a00;background:color-mix(in srgb,var(--amber) 22%,transparent);border-color:transparent}
+.badge.done{color:#fff;background:var(--green);border-color:var(--green)}
+.bguide{font-size:.9rem;color:var(--muted);margin-top:8px;background:var(--surface-2);border-radius:12px;padding:10px 13px}
+.final{display:none}
+.final.on{display:block;border-left:4px solid var(--green)}
 </style>
 
 <div class="wrap">
@@ -67,27 +86,23 @@ textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
     <div class="tema" id="tema">—</div>
     <div class="row">
       <button class="btn btn-s" id="novoTema">🎲 Novo tema</button>
-      <button class="btn btn-s" id="limpar">🧹 Limpar texto</button>
+      <button class="btn btn-s" id="limpar">🧹 Limpar tudo</button>
     </div>
+    <div class="steps" id="steps" style="margin-top:14px"></div>
+    <div class="progresso" id="progresso"></div>
   </div>
 
-  <div class="panel">
-    <div class="tema-label">✍️ Sua redação</div>
-    <textarea id="texto" placeholder="Desenvolva aqui o seu texto dissertativo-argumentativo: introdução (apresente o tema e sua tese), 2 parágrafos de desenvolvimento (com argumentos e repertório) e conclusão (com proposta de intervenção)."></textarea>
-    <div class="count">
-      <span><b id="nw">0</b> palavras · <b id="nl">0</b> linhas · <b id="nc">0</b> caracteres</span>
-      <span id="dica-lin">Alvo: ~25–30 linhas</span>
-    </div>
+  <div id="blocks"></div>
+
+  <div class="panel final" id="finalBox">
+    <div class="bhead"><span class="bnum" style="background:var(--green)">★</span>
+      <div class="btitle">Redação completa — nota final</div></div>
+    <div class="bguide">Os 4 blocos estão prontos! Junte tudo e receba a <b>nota de 0 a 1000</b> no critério das 5 competências (estilo Cebraspe/ENEM).</div>
     <div class="row">
-      <button class="btn btn-p" id="corrigir">🔎 Corrigir minha redação</button>
-      <button class="btn btn-s" id="parar" style="display:none">⏹ Parar</button>
+      <button class="btn btn-p" id="corrFinal">🏆 Montar redação e dar nota final</button>
+      <button class="btn btn-s" id="stopFinal" style="display:none">⏹ Parar</button>
     </div>
-    <div class="hint" id="hint">A correção é feita pelo Claude e aparece abaixo, com nota, pontos fortes, o que ajustar e como chegar ao 1000.</div>
-  </div>
-
-  <div class="panel" id="boxResult" style="display:none">
-    <div class="tema-label">📝 Correção</div>
-    <div class="result" id="result"></div>
+    <div class="result" id="rsFinal"></div>
   </div>
 
   <p class="foot" id="foot"></p>
@@ -117,25 +132,81 @@ const TEMAS=[
  "Ética e cidadania na atuação do servidor público"
 ];
 
+// Definição dos 4 blocos, em ordem
+const BLOCKS=[
+ {k:"intro", n:"Introdução",
+  guia:"Abra contextualizando o tema (uma frase, com repertório se possível), apresente sua <b>tese</b> (seu ponto de vista claro sobre o tema) e já indique os <b>2 argumentos</b> que vai desenvolver. Cerca de 3 a 5 linhas.",
+  crit:"Função: contextualizar o tema, apresentar uma TESE clara (ponto de vista do candidato) e anunciar os 2 argumentos que serão desenvolvidos. Deve ter cerca de 3 a 5 linhas e não fugir ao tema.",
+  ph:"Escreva aqui apenas a introdução…"},
+ {k:"dev1", n:"Desenvolvimento — parágrafo 1",
+  guia:"Desenvolva o <b>1º argumento</b>: apresente a ideia, traga um <b>repertório legítimo</b> (lei, dado, fato histórico, autor), explique com suas palavras e conecte com a sua tese. Cerca de 5 a 7 linhas.",
+  crit:"Função: desenvolver o PRIMEIRO argumento. Deve ter tópico frasal claro, repertório legítimo e pertinente (lei, dado, fato, autor), explicação/argumentação própria e ligação com a tese. Cerca de 5 a 7 linhas.",
+  ph:"Escreva aqui o primeiro parágrafo de desenvolvimento…"},
+ {k:"dev2", n:"Desenvolvimento — parágrafo 2",
+  guia:"Desenvolva o <b>2º argumento</b>, diferente do primeiro: nova ideia, <b>novo repertório</b>, aprofundamento e ligação com a tese. Use um conectivo de progressão no início. Cerca de 5 a 7 linhas.",
+  crit:"Função: desenvolver o SEGUNDO argumento, distinto do primeiro. Deve ter tópico frasal, repertório diferente do parágrafo anterior, aprofundamento e ligação com a tese, iniciando com conectivo de progressão. Cerca de 5 a 7 linhas.",
+  ph:"Escreva aqui o segundo parágrafo de desenvolvimento…"},
+ {k:"conclusao", n:"Conclusão",
+  guia:"Retome a tese e apresente uma <b>proposta de intervenção</b> completa: <b>quem</b> faz (agente), <b>o quê</b> (ação), <b>como</b> (meio/modo), <b>para quê</b> (finalidade) e um <b>detalhamento</b> — sempre respeitando os direitos humanos. Cerca de 4 a 6 linhas.",
+  crit:"Função: retomar a tese e apresentar PROPOSTA DE INTERVENÇÃO completa com os 5 elementos (agente, ação, meio/modo, finalidade, detalhamento), respeitando os direitos humanos. Não pode trazer argumento novo. Cerca de 4 a 6 linhas.",
+  ph:"Escreva aqui a conclusão com a proposta de intervenção…"}
+];
+
 const $=id=>document.getElementById(id);
-const temaEl=$('tema'), txt=$('texto'), res=$('result'), box=$('boxResult');
-let sample=null, ctl=null;
+const temaEl=$('tema');
+let sample=null;
+const ctl={};            // controladores por bloco
+const data={};           // texto por bloco
+const done={};           // bloco pronto (100%)
 
-function pick(){ let t; do{ t=TEMAS[Math.floor(Math.random()*TEMAS.length)]; }while(t===temaEl.textContent && TEMAS.length>1); temaEl.textContent=t; save(); }
+// ---- construir os blocos ----
+const cont=$('blocks');
+BLOCKS.forEach((b,idx)=>{
+  const p=document.createElement('div');
+  p.className='panel block'; p.id='pan-'+b.k;
+  p.innerHTML=
+    '<div class="bhead"><span class="bnum">'+(idx+1)+'</span>'+
+      '<div class="btitle">'+b.n+' <span class="badge" id="bd-'+b.k+'">pendente</span></div></div>'+
+    '<div class="bguide">'+b.guia+'</div>'+
+    '<textarea id="ta-'+b.k+'" placeholder="'+b.ph+'"></textarea>'+
+    '<div class="count"><span><b id="w-'+b.k+'">0</b> palavras · <b id="l-'+b.k+'">0</b> linhas</span>'+
+      '<span id="st-'+b.k+'"></span></div>'+
+    '<div class="row"><button class="btn btn-p" data-corr="'+b.k+'">🔎 Corrigir '+(b.k==='intro'?'introdução':b.k==='conclusao'?'conclusão':'este parágrafo')+'</button>'+
+      '<button class="btn btn-s" data-stop="'+b.k+'" style="display:none">⏹ Parar</button></div>'+
+    '<div class="result" id="rs-'+b.k+'"></div>';
+  cont.appendChild(p);
+});
 
-function counts(){
-  const v=txt.value;
-  const w=(v.trim().match(/\S+/g)||[]).length;
-  const c=v.length;
-  // ~ linhas: considera ~75 caracteres por linha manuscrita OU quebras reais, o que for maior
-  const brk=v.split(/\n/).length;
-  const est=Math.max(brk, Math.ceil(c/75));
-  $('nw').textContent=w; $('nc').textContent=c; $('nl').textContent=v.trim()?est:0;
-  save();
+// chips de progresso
+function renderSteps(){
+  $('steps').innerHTML=BLOCKS.map((b,i)=>
+    '<span class="step-chip'+(done[b.k]?' done':'')+'"><span class="dot">'+(done[b.k]?'✓':(i+1))+'</span>'+b.n.split(' — ')[0]+(b.k.startsWith('dev')?' '+b.n.slice(-1):'')+'</span>'
+  ).join('');
+  const n=BLOCKS.filter(b=>done[b.k]).length;
+  $('progresso').innerHTML='Progresso: <b>'+n+'/4</b> blocos a 100%.'+(n===4?' 🎉 Pronto para a nota final!':' Corrija um bloco de cada vez até ficar <b>100%</b>.');
+  $('finalBox').classList.toggle('on',n===4);
 }
 
-function save(){ try{ localStorage.setItem('redacao_prf', JSON.stringify({t:temaEl.textContent, v:txt.value})); }catch(e){} }
-function load(){ try{ const d=JSON.parse(localStorage.getItem('redacao_prf')||'null'); if(d){ if(d.t)temaEl.textContent=d.t; if(d.v)txt.value=d.v; } }catch(e){} }
+function counts(k){
+  const v=($('ta-'+k).value)||'';
+  const w=(v.trim().match(/\S+/g)||[]).length;
+  const brk=v.split(/\n/).length;
+  const est=Math.max(brk, Math.ceil(v.length/75));
+  $('w-'+k).textContent=w; $('l-'+k).textContent=v.trim()?est:0;
+}
+
+function setBadge(k,kind,txt){
+  const el=$('bd-'+k); el.className='badge'+(kind?' '+kind:''); el.textContent=txt;
+  $('pan-'+k).classList.toggle('done',kind==='done');
+}
+
+function save(){ try{ const o={t:temaEl.textContent,done:done}; BLOCKS.forEach(b=>o[b.k]=$('ta-'+b.k).value); localStorage.setItem('redacao_prf_blocos',JSON.stringify(o)); }catch(e){} }
+function load(){ try{ const d=JSON.parse(localStorage.getItem('redacao_prf_blocos')||'null'); if(d){ if(d.t)temaEl.textContent=d.t; BLOCKS.forEach(b=>{ if(d[b.k])$('ta-'+b.k).value=d[b.k]; if(d.done&&d.done[b.k]){done[b.k]=true;} }); } }catch(e){} }
+
+function pick(){ let t; do{ t=TEMAS[Math.floor(Math.random()*TEMAS.length)]; }while(t===temaEl.textContent && TEMAS.length>1); temaEl.textContent=t;
+  // novo tema: zera status (texto é mantido, mas precisa recorrigir)
+  BLOCKS.forEach(b=>{ done[b.k]=false; setBadge(b.k,'','pendente'); $('rs-'+b.k).innerHTML=''; $('st-'+b.k).textContent=''; });
+  renderSteps(); save(); }
 
 // mini markdown -> html (seguro)
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -154,62 +225,111 @@ function md(src){
   return html;
 }
 
-function buildPrompt(){
-  return "Você é um corretor especialista em redação de concursos públicos brasileiros (banca Cebraspe, concurso da PRF) e também no padrão de nota de 0 a 1000 (estilo ENEM). "
-   +"Corrija a redação do candidato com rigor técnico, mas de forma didática, objetiva e motivadora (o candidato tem TDAH: seja claro, direto e organizado).\n\n"
-   +"TEMA PROPOSTO:\n\""+temaEl.textContent+"\"\n\n"
-   +"REDAÇÃO DO CANDIDATO:\n\"\"\"\n"+txt.value+"\n\"\"\"\n\n"
-   +"Avalie como texto DISSERTATIVO-ARGUMENTATIVO. Atribua nota de 0 a 200 em cada uma das 5 competências e a nota total (0 a 1000):\n"
-   +"C1. Domínio da norma culta (gramática, ortografia, pontuação, concordância, crase).\n"
-   +"C2. Compreender a proposta e aplicar o tipo textual (não fugir ao tema; dissertativo-argumentativo).\n"
-   +"C3. Selecionar, relacionar e organizar argumentos, com repertório pertinente.\n"
-   +"C4. Coesão e coerência (conectivos, progressão das ideias, paragrafação).\n"
-   +"C5. Proposta de intervenção / conclusão (detalhada, viável e que respeite os direitos humanos).\n\n"
-   +"Responda em português, em Markdown, EXATAMENTE nesta estrutura (use ## nos títulos):\n"
-   +"## 🏆 Nota: X/1000\n"
-   +"Uma linha por competência: **C1 – Norma culta:** nota/200 — comentário curto. (repita até C5)\n\n"
-   +"## ✅ Pontos fortes\n- itens curtos\n\n"
-   +"## 🔧 O que ajustar\n- **Trecho:** \"copie um trecho REAL do candidato\" → qual o problema → como corrigir. (dê 3 a 6 itens)\n\n"
-   +"## ✍️ Sugestões de reescrita\n- **Antes:** \"...\" **Depois:** \"...\" (2 a 4 exemplos)\n\n"
-   +"## 🎯 Para chegar ao 1000\nPassos concretos e priorizados, em lista.\n\n"
-   +"Cite trechos reais do texto. Se a redação estiver vazia, muito curta ou fora do tema, diga isso claramente e oriente como recomeçar.";
+function blockPrompt(b, val){
+  return "Você é um corretor especialista em redação de concursos públicos (banca Cebraspe, concurso da PRF), padrão de nota 0 a 1000 (estilo ENEM). "
+   +"A redação está sendo corrigida POR BLOCOS, um de cada vez, até cada bloco ficar 100%. Agora avalie APENAS o bloco indicado. "
+   +"Seja rigoroso, mas didático, direto e motivador — o candidato tem TDAH, então organize bem e vá ao ponto.\n\n"
+   +"TEMA DA REDAÇÃO:\n\""+temaEl.textContent+"\"\n\n"
+   +"BLOCO A CORRIGIR: «"+b.n+"»\n"+b.crit+"\n\n"
+   +"TEXTO DO CANDIDATO (apenas este bloco):\n\"\"\"\n"+val+"\n\"\"\"\n\n"
+   +"Responda em português, em Markdown, EXATAMENTE nesta ordem:\n"
+   +"1) A PRIMEIRA linha deve ser somente: `NOTA: NN/100 | STATUS: PRONTO` ou `NOTA: NN/100 | STATUS: AJUSTAR`. "
+   +"Use STATUS: PRONTO apenas se NN for 95 ou mais E o bloco cumprir 100% a sua função, sem erros relevantes. Caso contrário, STATUS: AJUSTAR.\n"
+   +"2) ## ✅ O que está bom — 1 a 3 itens curtos.\n"
+   +"3) ## 🔧 O que ajustar — liste cada problema assim: **Trecho:** \"copie um trecho REAL do candidato\" → qual o problema → como corrigir. Seja específico e trate SÓ deste bloco.\n"
+   +"4) ## ✍️ Como reescrever — 1 a 3 exemplos: **Antes:** \"...\" **Depois:** \"...\".\n"
+   +(b.k==='conclusao'?"5) Verifique explicitamente os 5 elementos da proposta de intervenção (agente, ação, meio/modo, finalidade, detalhamento) e aponte os que faltam.\n":"")
+   +"Se este bloco estiver vazio ou muito curto, dê NOTA baixa, STATUS: AJUSTAR e oriente como escrevê-lo do zero. Não avalie os outros blocos nem invente texto que o candidato não escreveu.";
 }
 
-async function corrigir(){
-  if(!sample){ res.innerHTML='<div class="warn">⚠️ A correção automática só funciona quando esta página é aberta <b>dentro do Claude</b> e com você logado. Abra pelo link do Claude e permita o uso quando pedir.</div>'; box.style.display='block'; return; }
-  const v=txt.value.trim();
-  if(v.length<40){ res.innerHTML='<div class="warn">✍️ Escreva um pouco mais antes de corrigir (pelo menos um parágrafo).</div>'; box.style.display='block'; return; }
-  box.style.display='block';
-  res.innerHTML='<p><span class="spin"></span>Analisando sua redação… isso pode levar alguns segundos.</p>';
-  $('corrigir').disabled=true; $('parar').style.display='inline-block';
-  ctl=new AbortController();
+async function corrigir(k){
+  const b=BLOCKS.find(x=>x.k===k);
+  const res=$('rs-'+k), val=($('ta-'+k).value||'').trim();
+  if(!sample){ res.innerHTML='<div class="warn">⚠️ A correção automática só funciona com esta página aberta <b>dentro do Claude</b> e com você logado. Abra pelo link do Claude e permita o uso quando pedir.</div>'; return; }
+  if(val.length<20){ res.innerHTML='<div class="warn">✍️ Escreva um pouco mais neste bloco antes de corrigir.</div>'; setBadge(k,'ajustar','ajustar'); return; }
+  res.innerHTML='<p><span class="spin"></span>Corrigindo a '+b.n.toLowerCase()+'…</p>';
+  setBadge(k,'','corrigindo…');
+  document.querySelector('[data-corr="'+k+'"]').disabled=true;
+  document.querySelector('[data-stop="'+k+'"]').style.display='inline-block';
+  ctl[k]=new AbortController();
+  let full='';
   try{
-    await sample(buildPrompt(), {
-      modelTier:'complex', signal:ctl.signal, cache:false,
-      onText:({text})=>{ res.innerHTML=md(text); }
+    await sample(blockPrompt(b,val), {
+      modelTier:'complex', signal:ctl[k].signal, cache:false,
+      onText:({text})=>{ full=text; res.innerHTML=md(text.replace(/^\s*NOTA:[^\n]*\n?/i,'')); }
     });
+    // parse status/nota
+    const mN=full.match(/NOTA:\s*(\d{1,3})\s*\/\s*100/i);
+    const pronto=/STATUS:\s*PRONTO/i.test(full);
+    const nota=mN?Math.min(100,parseInt(mN[1],10)):null;
+    if(nota!==null) $('st-'+k).innerHTML='Nota do bloco: <b>'+nota+'/100</b>';
+    if(pronto){ done[k]=true; setBadge(k,'done','✅ 100%'); }
+    else { done[k]=false; setBadge(k,'ajustar','ajustar'); }
+    renderSteps(); save();
   }catch(e){
-    if(e.code==='cancelled'){ res.innerHTML=(e.text?md(e.text):'')+'<p class="hint">⏹ Correção interrompida.</p>'; }
-    else if(e.code==='not_granted'){ res.innerHTML='<div class="warn">Você não permitiu o uso do Claude nesta página. Recarregue e permita para corrigir.</div>'; }
-    else if(e.code==='rate_limited'){ res.innerHTML='<div class="warn">Muitas correções em pouco tempo. Espere um minuto e tente de novo.</div>'; }
-    else{ res.innerHTML='<div class="warn">Não consegui concluir a correção agora ('+(e.code||'erro')+'). Tente novamente em instantes.</div>'+(e.text?md(e.text):''); }
+    if(e.code==='cancelled'){ res.innerHTML=(e.text?md(e.text.replace(/^\s*NOTA:[^\n]*\n?/i,'')):'')+'<p class="hint">⏹ Correção interrompida.</p>'; setBadge(k,'ajustar','ajustar'); }
+    else if(e.code==='not_granted'){ res.innerHTML='<div class="warn">Você não permitiu o uso do Claude nesta página. Recarregue e permita para corrigir.</div>'; setBadge(k,'','pendente'); }
+    else if(e.code==='rate_limited'){ res.innerHTML='<div class="warn">Muitas correções em pouco tempo. Espere um minuto e tente de novo.</div>'; setBadge(k,'','pendente'); }
+    else{ res.innerHTML='<div class="warn">Não consegui concluir agora ('+(e.code||'erro')+'). Tente de novo em instantes.</div>'; setBadge(k,'','pendente'); }
   }finally{
-    $('corrigir').disabled=false; $('parar').style.display='none';
+    document.querySelector('[data-corr="'+k+'"]').disabled=false;
+    document.querySelector('[data-stop="'+k+'"]').style.display='none';
   }
 }
 
-$('novoTema').onclick=pick;
-$('limpar').onclick=()=>{ if(confirm('Apagar o texto atual?')){ txt.value=''; counts(); } };
-$('corrigir').onclick=corrigir;
-$('parar').onclick=()=>ctl&&ctl.abort();
-txt.addEventListener('input',counts);
+function finalPrompt(){
+  const red=BLOCKS.map(b=>($('ta-'+b.k).value||'').trim()).join('\n\n');
+  return "Você é um corretor especialista em redação de concursos públicos brasileiros (banca Cebraspe, concurso da PRF), padrão de nota de 0 a 1000 (estilo ENEM). "
+   +"Corrija a redação COMPLETA abaixo com rigor técnico, de forma didática, objetiva e motivadora (o candidato tem TDAH: seja claro e organizado).\n\n"
+   +"TEMA PROPOSTO:\n\""+temaEl.textContent+"\"\n\n"
+   +"REDAÇÃO DO CANDIDATO:\n\"\"\"\n"+red+"\n\"\"\"\n\n"
+   +"Avalie como texto DISSERTATIVO-ARGUMENTATIVO. Dê nota de 0 a 200 em cada competência e a nota total (0 a 1000):\n"
+   +"C1. Domínio da norma culta. C2. Compreender a proposta e o tipo textual. C3. Selecionar e organizar argumentos com repertório. C4. Coesão e coerência. C5. Proposta de intervenção.\n\n"
+   +"Responda em português, em Markdown, EXATAMENTE nesta estrutura (use ## nos títulos):\n"
+   +"## 🏆 Nota: X/1000\nUma linha por competência: **C1 – Norma culta:** nota/200 — comentário curto. (até C5)\n\n"
+   +"## ✅ Pontos fortes\n- itens curtos\n\n"
+   +"## 🔧 O que ainda dá para melhorar\n- **Trecho:** \"trecho real\" → problema → como corrigir (3 a 6 itens)\n\n"
+   +"## 🎯 Para cravar o 1000\nPassos concretos e priorizados, em lista.\n\n"
+   +"Cite trechos reais do texto.";
+}
 
+async function corrigirFinal(){
+  const res=$('rsFinal');
+  if(!sample){ res.innerHTML='<div class="warn">⚠️ Abra a página dentro do Claude (logado) para a nota final.</div>'; return; }
+  res.innerHTML='<p><span class="spin"></span>Montando a redação completa e avaliando as 5 competências…</p>';
+  $('corrFinal').disabled=true; $('stopFinal').style.display='inline-block';
+  ctl.final=new AbortController();
+  try{
+    await sample(finalPrompt(), { modelTier:'complex', signal:ctl.final.signal, cache:false,
+      onText:({text})=>{ res.innerHTML=md(text); } });
+  }catch(e){
+    if(e.code==='cancelled'){ res.innerHTML=(e.text?md(e.text):'')+'<p class="hint">⏹ Interrompido.</p>'; }
+    else{ res.innerHTML='<div class="warn">Não consegui concluir agora ('+(e.code||'erro')+'). Tente de novo.</div>'; }
+  }finally{ $('corrFinal').disabled=false; $('stopFinal').style.display='none'; }
+}
+
+// ---- eventos ----
+$('novoTema').onclick=pick;
+$('limpar').onclick=()=>{ if(confirm('Apagar todo o texto dos 4 blocos?')){ BLOCKS.forEach(b=>{ $('ta-'+b.k).value=''; counts(b.k); done[b.k]=false; setBadge(b.k,'','pendente'); $('rs-'+b.k).innerHTML=''; $('st-'+b.k).textContent=''; }); $('rsFinal').innerHTML=''; renderSteps(); save(); } };
+$('corrFinal').onclick=corrigirFinal;
+$('stopFinal').onclick=()=>ctl.final&&ctl.final.abort();
+cont.addEventListener('click',e=>{
+  const c=e.target.closest('[data-corr]'); if(c){ corrigir(c.getAttribute('data-corr')); return; }
+  const s=e.target.closest('[data-stop]'); if(s){ const k=s.getAttribute('data-stop'); ctl[k]&&ctl[k].abort(); }
+});
+cont.addEventListener('input',e=>{ const ta=e.target.closest('textarea'); if(ta){ const k=ta.id.replace('ta-',''); counts(k);
+  // ao editar um bloco já aprovado, reabre para recorrigir
+  if(done[k]){ done[k]=false; setBadge(k,'ajustar','editado — recorrija'); renderSteps(); }
+  save(); } });
+
+// ---- init ----
 load();
 if(temaEl.textContent==='—'||!temaEl.textContent.trim()) pick();
-counts();
-$('foot').innerHTML='Dica: escreva introdução + 2 parágrafos de desenvolvimento + conclusão com proposta · salve o hábito de treinar <b>1 redação por semana</b>.';
+BLOCKS.forEach(b=>{ counts(b.k); if(done[b.k]) setBadge(b.k,'done','✅ 100%'); });
+renderSteps();
+$('foot').innerHTML='Corrija <b>bloco a bloco</b> até cada um ficar 100% · depois gere a <b>nota final 0–1000</b> · treine <b>1 redação por semana</b>.';
 
 (async()=>{ try{ sample=await claude.use('sample'); }catch(e){ sample=null; }
-  if(!sample){ $('hint').innerHTML='⚠️ Abra esta página <b>dentro do Claude</b> (logado) para a correção automática funcionar.'; }
+  if(!sample){ BLOCKS.forEach(b=>{ const el=$('rs-'+b.k); }); $('foot').innerHTML='⚠️ Abra esta página <b>dentro do Claude</b> (logado) para a correção automática funcionar.'; }
 })();
 </script>
